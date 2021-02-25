@@ -3,15 +3,10 @@
         <i class=" fas fa-building"></i><span>Dashboard</span>
     </a>
 </li>
-<li class="dropdown {{ Request::is('admin/category*') ? 'active' : '' }}">
-    <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fas fa-columns"></i> <span>Category</span></a>
+<li class="dropdown {{ Request::is('admin/manage-products*') ? 'active' : '' }}">
+    <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fas fa-columns"></i> <span>Manage Products</span></a>
     <ul class="dropdown-menu">
-      <li class="{{ Request::is('admin/category') ? 'active' : '' }}"><a class="nav-link" href="{{ route('category.index') }}">Manage Category</a></li>
-      <li class="{{ Request::is('admin/category/create') ? 'active' : '' }}"><a class="nav-link" href="{{ route('category.create') }}">Add Category</a></li>
+      <li class="{{ Request::is('admin/manage-products/categories/*') ? 'active' : '' }}"><a class="nav-link" href="{{ route('categories.index') }}">Categories</a></li>
+      <li class="{{ Request::is('admin/manage-products/brands') ? 'active' : '' }}"><a class="nav-link" href="{{ route('categories.create') }}">Brands</a></li>
     </ul>
   </li>
-{{-- <li class="side-menus {{ Request::is('admin/category/*') ? 'active' : '' }}">
-    <a class="nav-link" href="{{ route('category.index') }}">
-        <i class=" fas fa-building"></i><span>Category</span>
-    </a>
-</li> --}}
