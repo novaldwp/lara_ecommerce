@@ -10,7 +10,9 @@ Route::get('/', function () {
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::group(['prefix' => 'admin'], function() {
-    Route::resource('/category', CategoryController::class);
+    Route::group(['prefix' => 'manage-products'], function() {
+        Route::resource('/categories', CategoryController::class)->except('show');
+    });
 
 });
 

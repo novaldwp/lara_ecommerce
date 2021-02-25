@@ -15,13 +15,19 @@ class Category extends Model
         'parent_id'
     ];
 
-    public function parent()
-    {
-        $this->belongsTo('App\Admin\Category', 'parent_id');
-    }
-
     public function child()
     {
-        $this->hasMany('App\Admin\Category', 'parent_id');
+        return $this->hasMany('App\Models\Admin\Category', 'parent_id')->with('child'); // add with for 3 level categories
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo('App\Models\Admin\Category', 'parent_id')->with('parent'); // add with for 3 level categories
+    }
+
+
+    public function scopeGetParent($query)
+    {
+        return $query->whereNull('parent_id');
     }
 }
