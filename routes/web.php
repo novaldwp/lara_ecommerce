@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\Product\BrandController;
 use App\Http\Controllers\Admin\Product\CategoryController;
 use Illuminate\Support\Facades\Route;
 
@@ -12,6 +13,7 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 Route::group(['prefix' => 'admin'], function() {
     Route::group(['prefix' => 'manage-products'], function() {
         Route::resource('/categories', CategoryController::class)->except('show');
+        Route::resource('/brands', BrandController::class)->except('show');
     });
 
 });
