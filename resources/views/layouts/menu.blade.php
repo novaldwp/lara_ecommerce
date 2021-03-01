@@ -8,6 +8,7 @@
     <ul class="dropdown-menu">
       <li class="{{ Request::is('admin/manage-products/categories*') ? 'active' : '' }}"><a class="nav-link" href="{{ route('categories.index') }}">Categories</a></li>
       <li class="{{ Request::is('admin/manage-products/brands*') ? 'active' : '' }}"><a class="nav-link" href="{{ route('brands.index') }}">Brands</a></li>
+      <li class="{{ Request::is('admin/manage-products/warranties*') ? 'active' : '' }}"><a class="nav-link" href="{{ route('warranties.index') }}">Warranties</a></li>
       <li class="{{ Request::is('admin/manage-products/options*') ? 'active' : '' }}"><a class="nav-link" href="{{ route('options.index') }}">Options</a></li>
       <li class="{{ Request::is('admin/manage-products/option-values*') ? 'active' : '' }}"><a class="nav-link" href="{{ route('option-values.index') }}">Option Values</a></li>
     </ul>
