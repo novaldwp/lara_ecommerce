@@ -3,8 +3,8 @@
 namespace App\Http\Requests\Product;
 
 use Illuminate\Foundation\Http\FormRequest;
-
-class OptionRequest extends FormRequest
+use Illuminate\Validation\Rule;
+class OptionValueRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,8 +23,19 @@ class OptionRequest extends FormRequest
      */
     public function rules()
     {
+        $id = request()->segment(4);
+
+        if ($id > 0)
+        {
+            $name = 'required|unique:option_values,name,' .$id;
+        }
+        else {
+            $name = 'required|unique:option_values,name';
+        }
+
         return [
-            'name'  => 'required|unique:options,name'.($this->method('PUT') ? ','.$this->id:'')
+            'name'  => $name,
+            'option_id' => 'required|integer'
         ];
     }
 }
