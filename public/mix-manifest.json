@@ -1,9 +1,9 @@
 {
-    "/assets/js/custom/custom.js": "/assets/js/custom/custom.js?id=5fac26f3156c417a9f40",
-    "/assets/js/custom/custom-datatable.js": "/assets/js/custom/custom-datatable.js?id=a7a25f447cb79a0613be",
-    "/assets/js/profile.js": "/assets/js/profile.js?id=07e9e85829f423634db8",
-    "/js/app.js": "/js/app.js?id=d887ab4f8b62b106991b",
-    "/js/scripts.min.js": "/js/scripts.min.js?id=5aa6ff7a51017f2401b4",
+    "/assets/js/custom/custom.js": "/assets/js/custom/custom.js?id=86c9c2b3181d0e911c52",
+    "/assets/js/custom/custom-datatable.js": "/assets/js/custom/custom-datatable.js?id=6c1d837d93fa40854cb2",
+    "/assets/js/profile.js": "/assets/js/profile.js?id=1c1b8dd507f8f7109f84",
+    "/js/app.js": "/js/app.js?id=2709bc3776ff7b39480b",
+    "/js/scripts.min.js": "/js/scripts.min.js?id=bc506e3fd119ae901469",
     "/css/app.css": "/css/app.css?id=c938931de582e64e1f92",
     "/css/all.css": "/css/all.css?id=65464bd1868ceaeafae5",
     "/assets/css/bootstrap.min.css": "/assets/css/bootstrap.min.css?id=d432e4222814b62dd30c",
@@ -11,6 +11,8 @@
     "/assets/css/select2.min.css": "/assets/css/select2.min.css?id=9f54e6414f87e0d14b9e",
     "/assets/css/sweetalert.css": "/assets/css/sweetalert.css?id=196c08c89f0c8a9b688a",
     "/assets/css/iziToast.min.css": "/assets/css/iziToast.min.css?id=b2f7bdc3ed47f5956551",
+    "/assets/css/summernote.css": "/assets/css/summernote.css?id=7ae2b0425d9f5efd612a",
+    "/assets/css/dropzone.css": "/assets/css/dropzone.css?id=ba879c5d5f3871ee2167",
     "/assets/js/jquery.nicescroll.js": "/assets/js/jquery.nicescroll.js?id=81e4e7aa25d44a83b8f5",
     "/assets/js/jquery.min.js": "/assets/js/jquery.min.js?id=60f9cbeb0ef7acca791b",
     "/assets/js/popper.min.js": "/assets/js/popper.min.js?id=58bd3af41dba56aab9c4",
@@ -18,5 +20,7 @@
     "/assets/js/jquery.dataTables.min.js": "/assets/js/jquery.dataTables.min.js?id=c7761db9566b171d0aba",
     "/assets/js/select2.min.js": "/assets/js/select2.min.js?id=8d435cd331d1ff270899",
     "/assets/js/sweetalert.min.js": "/assets/js/sweetalert.min.js?id=5a33b7909f9baaea7b47",
-    "/assets/js/iziToast.min.js": "/assets/js/iziToast.min.js?id=aa038df3760cbd7c8033"
+    "/assets/js/iziToast.min.js": "/assets/js/iziToast.min.js?id=aa038df3760cbd7c8033",
+    "/assets/js/summernote.js": "/assets/js/summernote.js?id=4a1b434228495fe536ec",
+    "/assets/js/dropzone.js": "/assets/js/dropzone.js?id=a2c81d26b89086c2c1b3"
 }

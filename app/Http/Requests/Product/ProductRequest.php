@@ -4,7 +4,7 @@ namespace App\Http\Requests\Product;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CategoryRequest extends FormRequest
+class ProductRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,7 +24,15 @@ class CategoryRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|min:3'
+            // 'image' => 'mimes:jpg,jpeg,png,gif,svg|required|max:3' <<< mimes busuk, pdhal filenya jpg
+            'image' => 'required|max:3'
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'image.max' => 'The maximum image can be selected is 3'
         ];
     }
 }

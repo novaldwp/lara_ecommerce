@@ -125,7 +125,7 @@ function customSearch() {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! C:\laragon\www\lara_ecommerce\resources\assets\js\custom\custom-datatable.js */"./resources/assets/js/custom/custom-datatable.js");
+module.exports = __webpack_require__(/*! c:\laragon\www\lara_ecommerce\resources\assets\js\custom\custom-datatable.js */"./resources/assets/js/custom/custom-datatable.js");
 
 
 /***/ })

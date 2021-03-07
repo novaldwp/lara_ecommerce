@@ -17,4 +17,9 @@ class Brand extends Model
     {
         $this->attributes['name'] = ucfirst($value);
     }
+
+    public function products()
+    {
+        return $this->hasMany('App\Models\Admin\Product');
+    }
 }

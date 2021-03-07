@@ -5,17 +5,20 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class CreateOptionsTable extends Migration
+class CreateProductImagesTable extends Migration
 {
     use SoftDeletes;
     public function up()
     {
-        Schema::create('options', function (Blueprint $table) {
+        Schema::create('product_images', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->text('description')->nullable();
+            $table->string('path');
+            $table->string('image');
+            $table->foreignId('product_id');
             $table->timestamps();
             $table->softDeletes();
+
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 
@@ -26,6 +29,6 @@ class CreateOptionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('options');
+        Schema::dropIfExists('product_images');
     }
 }

@@ -3400,7 +3400,7 @@ $('.languageSelection').on('click', function () {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! C:\laragon\www\lara_ecommerce\resources\assets\js\custom\custom.js */"./resources/assets/js/custom/custom.js");
+module.exports = __webpack_require__(/*! c:\laragon\www\lara_ecommerce\resources\assets\js\custom\custom.js */"./resources/assets/js/custom/custom.js");
 
 
 /***/ })

@@ -5,16 +5,16 @@ namespace App\Models\Admin;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Option extends Model
+class ProductImage extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'name', 'description'
+        'path', 'thumb', 'image', 'product_id'
     ];
 
-    public function optionvalues()
+    public function products()
     {
-        return $this->hasMany('App\Models\Admin\OptionValue');
+        return $this->belongsTo('App\Models\Admin\Product');
     }
 }

@@ -43,6 +43,10 @@ mix.copy('node_modules/sweetalert/dist/sweetalert.css',
     'public/assets/css/sweetalert.css');
 mix.copy('node_modules/izitoast/dist/css/iziToast.min.css',
     'public/assets/css/iziToast.min.css');
+mix.copy('node_modules/summernote/dist/summernote-bs4.min.css',
+    'public/assets/css/summernote.css');
+mix.copy('node_modules/dropzone/dist/dropzone.css',
+    'public/assets/css/dropzone.css');
 
 mix.copyDirectory('node_modules/@fortawesome/fontawesome-free/css',
     'public/assets/css/@fortawesome/fontawesome-free/css');
@@ -65,3 +69,7 @@ mix.babel('node_modules/sweetalert/dist/sweetalert.min.js',
     'public/assets/js/sweetalert.min.js');
 mix.babel('node_modules/izitoast/dist/js/iziToast.min.js',
     'public/assets/js/iziToast.min.js');
+mix.babel('node_modules/summernote/dist/summernote-bs4.min.js',
+    'public/assets/js/summernote.js');
+mix.babel('node_modules/dropzone/dist/dropzone.js',
+    'public/assets/js/dropzone.js');
