@@ -1,0 +1,57 @@
+.box-area {
+    position: relative;
+    display: flex;
+    align-items: center;
+    border: 2px #6777ef;
+    height: 200px;
+    justify-content: center;
+    flex-direction: column;
+    cursor: pointer;
+    margin: 0 0 5px 0;
+}
+
+.box-area.active {
+    border: none;
+}
+
+.box-area.error {
+    border: 2px dashed #dc3545;
+}
+
+.box-area-icon {
+    margin: 20px 0 0 0;
+    font-size: 50px;
+}
+
+.box-area-icon i {
+    cursor: pointer;
+}
+
+.box-area header {
+    font-size: 20px;
+    font-weight: 200;
+    margin: 10px 0 10px 0;
+}
+
+.drag-area span {
+    margin: 5px 0 5px 0;
+}
+
+.box-area .image {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.box-area .image img {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+}
+
+.image-feedback {
+    color: #dc3545;
+}

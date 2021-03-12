@@ -10,7 +10,7 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'slug', 'price', 'category_id', 'brand_id', 'warranty_id', 'is_variant'
+        'name', 'slug', 'price', 'weight', 'category_id', 'brand_id', 'warranty_id', 'description', 'status'
     ];
 
     public function brands()
@@ -20,7 +20,7 @@ class Product extends Model
 
     public function categories()
     {
-        return $this->belongsTo('App\Models\Admin\Category');
+        return $this->belongsTo('App\Models\Admin\Category', 'category_id');
     }
 
     public function warranties()
@@ -30,6 +30,11 @@ class Product extends Model
 
     public function productimages()
     {
-        return $this->hasMany('App\Models\Admin\ProductImage');
+        return $this->hasOne('App\Models\Admin\ProductImage');
+    }
+
+    public function getStatusAttribute($value)
+    {
+        return $value ? "Active" : "Not Active";
     }
 }

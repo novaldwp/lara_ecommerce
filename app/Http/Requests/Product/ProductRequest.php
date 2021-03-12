@@ -24,15 +24,15 @@ class ProductRequest extends FormRequest
     public function rules()
     {
         return [
-            // 'image' => 'mimes:jpg,jpeg,png,gif,svg|required|max:3' <<< mimes busuk, pdhal filenya jpg
-            'image' => 'required|max:3'
+            // 'image1' => 'mimes:jpg,jpeg,png|required'
+            // 'image1' => 'required'
         ];
     }
 
     public function messages()
     {
         return [
-            'image.max' => 'The maximum image can be selected is 3'
+            // 'image1.max' => 'The maximum image can be selected is 3'
         ];
     }
 }

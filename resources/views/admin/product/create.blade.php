@@ -39,6 +39,15 @@
                                     </div>
                                 </div>
                                 <div class="form-group row">
+                                    <label class="col-sm-2 text-right col-form-label">Weight : </label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control @error('price') is-invalid @enderror" name="weight" value="{{ old('weight') }}" required="">
+                                        <div class="invalid-feedback">
+                                            {{ $errors->has('weight') ? $errors->first('weight'):"Please enter weight of product" }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
                                     <label class="col-sm-2 text-right col-form-label">Category : </label>
                                     <div class="col-sm-9">
                                         <select name="category_id" id="category_id" title="Select Category of Product" class="select2 form-control @error('category_id') is-invalid @enderror" required="">
@@ -86,17 +95,77 @@
                                     </div>
                                 </div>
                                 <div class="form-group row">
-                                    <label class="col-sm-2 text-right col-form-label">Image : </label>
+                                    <label class="col-sm-2 text-right col-form-label">Description : </label>
                                     <div class="col-sm-9">
-                                        <input type="file" class="form-control @error('image') is-invalid @enderror" name="image[]" required="" multiple>
+                                        <textarea name="description" id="" cols="30" rows="10" class="summernote-simple form-control @error('description') is-invalid @enderror" required>{{ old('description') }}</textarea>
                                         <div class="invalid-feedback">
-                                            {{ $errors->has('image') ? $errors->first('image'):"Please enter image of product" }}
+                                            {{ $errors->has('description') ? $errors->first('description'):"Please enter description of product" }}
                                         </div>
                                     </div>
                                 </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 text-right col-form-label">Image : </label>
+                                    <div class="col-sm-3">
+                                        <div class="box-area {{ session()->has("error-image") ? "error":"" }}" id="custom-btn" onclick="image1Active()">
+                                            <div class="image">
+                                                <img name="image1">
+                                            </div>
+                                            <div class="box-area-icon">
+                                                <a href="javscript:void(0);">
+                                                    <i class="fa fa-image"></i>
+                                                </a>
+                                            </div>
+                                            <header>Main Image</header>
+
+                                            <input type="file" name="image1" hidden>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div class="box-area {{ session()->has("error-image") ? "error":"" }}" id="custom-btn" onclick="image2Active()">
+                                            <div class="image">
+                                                <img name="image2">
+                                            </div>
+                                            <div class="box-area-icon">
+                                                <a href="javscript:void(0);">
+                                                    <i class="fa fa-image"></i>
+                                                </a>
+                                            </div>
+                                            <header>Additional Image</header>
+
+                                            <input type="file" name="image2" hidden>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div class="box-area {{ session()->has("error-image") ? "error":"" }}" id="custom-btn" onclick="image3Active()">
+                                            <div class="image">
+                                                <img name="image3">
+                                            </div>
+                                            <div class="box-area-icon">
+                                                <a href="javscript:void(0);">
+                                                    <i class="fa fa-image"></i>
+                                                </a>
+                                            </div>
+                                            <header>Additional Image</header>
+
+                                            <input type="file" name="image3" hidden>
+                                        </div>
+                                    </div>
+                                    @if (session()->has('error-image'))
+                                    <div class="image-feedback">
+                                         {{ session()->get('error-image') }}
+                                    </div>
+                                    @endif
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 text-right col-form-label">Status : </label>
+                                    <label class="custom-switch">
+                                        <input type="checkbox" name="status" class="custom-switch-input" value="1">
+                                        <span class="custom-switch-indicator"></span>
+                                    </label>
+                                </div>
                             </div>
                             <div class="card-footer offset-md-2 text-left">
-                                <input type="submit" class="btn btn-primary">
+                                <input type="submit" class="btn btn-primary" name="submit">
                                 <a href="{{ route('products.index') }}" class="btn btn-default">Back</a>
                             </div>
                         </form>
@@ -107,22 +176,21 @@
     </section>
 @endsection
 
+@section('css')
+<style>
+    label.custom-switch {
+        padding-left: 15px;
+    }
+</style>
+@endsection
+
 @section('page_css')
-<link href="{{ asset('assets/css/dropzone.css') }}" rel="stylesheet" type="text/css"/>
+<link href="{{ asset('css/backend/product.css') }}" rel="stylesheet" type="text/css"/>
 <link href="{{ asset('assets/css/summernote.min.css') }}" rel="stylesheet" type="text/css"/>
 <link href="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.1/summernote.css" rel="stylesheet">
 @endsection
 
 @section('page_js')
+<script src="{{ asset('js/backend/product.js') }}"></script>
 <script src="{{ asset('assets/js/summernote.min.js') }}"></script>
-<script src="{{ asset('assets/js/dropzone.js') }}"></script>
-@endsection
-
-
-@section('scripts')
-<script>
-$(function() {
-
-});
-</script>
 @endsection
