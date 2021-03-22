@@ -17,12 +17,12 @@ class Category extends Model
 
     public function child()
     {
-        return $this->hasMany('App\Models\Admin\Category', 'parent_id')->with('child'); // add with for 3 level categories
+        return $this->hasMany('App\Models\Admin\Category', 'parent_id'); // add with for 3 level categories
     }
 
     public function parent()
     {
-        return $this->belongsTo('App\Models\Admin\Category', 'parent_id')->with('parent'); // add with for 3 level categories
+        return $this->belongsTo('App\Models\Admin\Category', 'parent_id'); // add with for 3 level categories
     }
 
 

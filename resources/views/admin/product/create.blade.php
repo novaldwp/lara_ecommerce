@@ -53,11 +53,9 @@
                                         <select name="category_id" id="category_id" title="Select Category of Product" class="select2 form-control @error('category_id') is-invalid @enderror" required="">
                                             <option value="" disabled selected></option>
                                             @foreach($categories as $cat)
+                                                <option value="{{ $cat->id }}" disabled>{{ $cat->name }}</option>
                                                 @foreach($cat->child as $catt)
-                                                    <option value="{{ $catt->id }}" disabled>{{ $catt->name }}</option>
-                                                    @foreach($catt->child as $cattt)
-                                                        <option value="{{ $cattt->id }}" {{ $cattt->id == old('category_id') ? "selected" : ""}}>-- {{ $cattt->name }}</option>
-                                                    @endforeach
+                                                    <option value="{{ $catt->id }}" {{ $catt->id == old('category_id') ? "selected" : ""}}>-- {{ $catt->name }}</option>
                                                 @endforeach
                                             @endforeach
                                         </select>
@@ -150,6 +148,36 @@
                                             <input type="file" name="image3" hidden>
                                         </div>
                                     </div>
+                                    <div class="col-sm-3 offset-sm-2">
+                                        <div class="box-area {{ session()->has("error-image") ? "error":"" }}" id="custom-btn" onclick="image4Active()">
+                                            <div class="image">
+                                                <img name="image4">
+                                            </div>
+                                            <div class="box-area-icon">
+                                                <a href="javscript:void(0);">
+                                                    <i class="fa fa-image"></i>
+                                                </a>
+                                            </div>
+                                            <header>Additional Image</header>
+
+                                            <input type="file" name="image4" hidden>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div class="box-area {{ session()->has("error-image") ? "error":"" }}" id="custom-btn" onclick="image5Active()">
+                                            <div class="image">
+                                                <img name="image5">
+                                            </div>
+                                            <div class="box-area-icon">
+                                                <a href="javscript:void(0);">
+                                                    <i class="fa fa-image"></i>
+                                                </a>
+                                            </div>
+                                            <header>Additional Image</header>
+
+                                            <input type="file" name="image5" hidden>
+                                        </div>
+                                    </div>
                                     @if (session()->has('error-image'))
                                     <div class="image-feedback">
                                          {{ session()->get('error-image') }}
@@ -157,11 +185,30 @@
                                     @endif
                                 </div>
                                 <div class="form-group row">
+                                    <label class="col-sm-2 text-right col-form-label">Featured : </label>
+                                    <div class="col-sm-9">
+                                        <select name="is_featured" id="is_featured" title="Select Status of Product" class="select2 form-control  @error('is_featured') is-invalid @enderror" required="">
+                                            <option value="" disabled selected></option>
+                                            <option value="1" {{ old('is_featured') == 1 ? "selected" : "" }} >Yes</option>
+                                            <option value="0" {{ old('is_featured') == 2 ? "selected" : "" }} >No</option>
+                                        </select>
+                                        <div class="invalid-feedback">
+                                            {{ $errors->has('is_featured') ? $errors->first('is_featured'):"Please select featured of product" }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
                                     <label class="col-sm-2 text-right col-form-label">Status : </label>
-                                    <label class="custom-switch">
-                                        <input type="checkbox" name="status" class="custom-switch-input" value="1">
-                                        <span class="custom-switch-indicator"></span>
-                                    </label>
+                                    <div class="col-sm-9">
+                                        <select name="status" id="status" title="Select Status of Product" class="select2 form-control  @error('status') is-invalid @enderror" required="">
+                                            <option value="" disabled selected></option>
+                                            <option value="1" {{ old('status') == 1 ? "selected" : "" }} >Active</option>
+                                            <option value="0" {{ old('status') == 0 ? "selected" : "" }} >Not Active</option>
+                                        </select>
+                                        <div class="invalid-feedback">
+                                            {{ $errors->has('status') ? $errors->first('status'):"Please select status of product" }}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="card-footer offset-md-2 text-left">

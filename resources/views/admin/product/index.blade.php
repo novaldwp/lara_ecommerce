@@ -33,8 +33,8 @@
                                   <th width="20%">Name</th>
                                   <th width="12%">Kategori</th>
                                   <th width="12%">Price</th>
-                                  <th width="5%">Status</th>
                                   <th width="10%">Image</th>
+                                  <th width="5%">Status</th>
                                   <th width="15%">Action</th>
                                 </tr>
                                 @php $i = ($products->currentPage() - 1) * $products->perpage() + 1; @endphp
@@ -44,11 +44,12 @@
                                     <td>{{ $prod->name }}</td>
                                     <td>{{ $prod->categories->name }}</td>
                                     <td class="text-right">Rp. {{ number_format($prod->price, 0) }}</td>
-                                    <td class="text-center"><div class="badge {{ $prod->status == "Active" ? "badge-success":"badge-danger"}}">{{ $prod->status }}</div></td>
                                     <td>
                                         <a href="{{ asset($prod->productimages->path.$prod->productimages->image1) }}" data-lightbox="{{ $prod->slug }}" alt="{{ $prod->name }}">
                                             <img src="{{ asset($prod->productimages->thumb.$prod->productimages->image1) }}" data-lightbox="{{ $prod->slug }}" alt="{{ $prod->name }}" width="80px" height="40px">
                                         </a>
+                                    </td>
+                                    <td class="text-center"><div class="badge {{ $prod->status == 1 ? "badge-success":"badge-danger"}}">{{ $prod->status == 1 ? "Active":"Not Active"}}</div></td>
                                     <td>
                                         <form action="{{ route('products.destroy', $prod->id) }}" method="POST">
                                             @csrf

@@ -29,6 +29,15 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="form-group row has-error">
+                                    <label class="col-sm-2 text-right col-form-label">Icon : </label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control @error('icon') is-invalid @enderror" name="icon" required="">
+                                        <div class="invalid-feedback">
+                                            {{ $errors->has('icon') ? $errors->first('icon'):"Please enter icon of category" }}
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="form-group row">
                                     <label class="col-sm-2 text-right col-form-label">Parent : </label>
                                     <div class="col-sm-9">
@@ -58,4 +67,3 @@
         </div>
     </section>
 @endsection
-
