@@ -7,6 +7,8 @@ use App\Http\Controllers\Admin\Product\ProductController;
 use App\Http\Controllers\Admin\Product\BrandController;
 use App\Http\Controllers\Admin\Product\CategoryController;
 use App\Http\Controllers\Admin\Product\WarrantyController;
+use App\Http\Controllers\Front\AuthController;
+use App\Http\Controllers\Front\CartController;
 use App\Http\Controllers\Front\FrontProductController;
 use App\Http\Controllers\Front\HomeController;
 use Illuminate\Support\Facades\Route;
@@ -18,11 +20,31 @@ use Illuminate\Support\Facades\Route;
 // E-COMMERCE SECTION
 Route::group(['as' => 'ecommerce.'], function() {
 
+    // ================================= AUTH ============================================
+    // LOGIN & LOGOUT
+    Route::get('/login', [AuthController::class, 'loginForm'])->name('login.index');
+    Route::post('/login', [AuthController::class, 'postLogin'])->name('login.post');
+    Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    // REGISTER
+    Route::get('/register', [AuthController::class, 'registerForm'])->name('register.index');
+    Route::post('/register', [AuthController::class, 'postRegister'])->name('register.post');
+    Route::get('/verify/{token}', [AuthController::class, 'verifyEmail'])->name('register.verify');
+    Route::get('/verification-success', [AuthController::class, 'verifySuccess'])->name('register.verify.success');
+    Route::get('/verification-expired', [AuthController::class, 'verifyExpired'])->name('register.verify.expired');
+    // Route::get();
+
+
     Route::get('/', [HomeController::class, 'index'])->name('index');
     Route::get('/{categoryParentSlug}/{categoryChildSlug}', [FrontProductController::class, 'getProductByCategory'])->name('product.category');
     Route::get('/{categoryParent}/{categoryChild}/{slug}', [ProductController::class, 'getDetailProduct'])->name('product.detail');
     Route::get('/products', [FrontProductController::class, 'getProductList'])->name('product.index');
     Route::get('/{brandSlug}', [FrontProductController::class, 'getProductByBrand'])->name('product.brand');
+
+    Route::group(['middleware' => 'members'], function() {
+        // CART
+        Route::post('/cart/store', [CartController::class, 'add'])->name('cart.store');
+    });
 });
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
@@ -44,7 +66,10 @@ Route::group(['prefix' => 'admin'], function() {
     });
 });
 
-
-Auth::routes();
-
+Route::group(['prefix' => 'secret'], function() {
+    Route::get('/', function() {
+        return route('login');
+    });
+    Auth::routes();
+});
 

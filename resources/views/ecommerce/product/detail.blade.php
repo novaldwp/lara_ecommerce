@@ -29,7 +29,7 @@
                                 <img src="{{ asset($product->productimages->path.$product->productimages->image4) }}" alt="Product Image">
                                 <img src="{{ asset($product->productimages->path.$product->productimages->image5) }}" alt="Product Image">
                             </div>
-                            <div class="product-slider-single-nav ">
+                            <div class="product-slider-single-nav">
                                 <div class="slider-nav-img"><img src="{{ asset($product->productimages->thumb.$product->productimages->image1) }}" alt="Product Image" width="50px"></div>
                                 <div class="slider-nav-img"><img src="{{ asset($product->productimages->thumb.$product->productimages->image2) }}" alt="Product Image" width="50px"></div>
                                 <div class="slider-nav-img"><img src="{{ asset($product->productimages->thumb.$product->productimages->image3) }}" alt="Product Image" width="50px"></div>
@@ -38,44 +38,52 @@
                             </div>
                         </div>
                         <div class="col-md-7">
-                            <div class="product-content">
-                                <div class="title"><h2>{{ $product->name }}</h2></div>
-                                <div class="info-product">
-                                    <span class="sold-product">
-                                        Sold : 123132
-                                        •
-                                    </span>
-                                    <span class="ratting">
-                                        <i class="fa fa-star"></i>
-                                        0 (120 reviews)
-                                    </span>
-                                </div>
-                                <div class="brands">
-                                    <h4>Brand:</h4>
-                                    <a href="{{ route('ecommerce.product.brand', $product->brands->slug) }}"><p>{{ $product->brands->name }}</p></a>
-                                </div>
-                                <div class="warranty">
-                                    <h4>Warranty:</h4>
-                                    <p>{{ $product->warranties->name }}</p>
-                                </div>
-                                <div class="price">
-                                    <h4>Price :</h4>
-                                    {{-- <p>$99 <span>$149</span></p> --}}
-                                    <p>Rp. {{ number_format($product->price, 0) }}</p>
-                                </div>
-                                <div class="quantity">
-                                    <h4>Quantity:</h4>
-                                    <div class="qty">
-                                        <button class="btn-minus"><i class="fa fa-minus"></i></button>
-                                        <input type="text" value="1">
-                                        <button class="btn-plus"><i class="fa fa-plus"></i></button>
+                            <form action="{{ route('ecommerce.cart.store') }}" method="post">
+                                @csrf
+                                <div class="product-content">
+                                    <div class="title" slug="{{ $product->slug }}"><h2>{{ $product->name }}</h2></div>
+                                    <div class="info-product">
+                                        <span class="sold-product">
+                                            Sold : 123132
+                                            •
+                                        </span>
+                                        <span class="ratting">
+                                            <i class="fa fa-star"></i>
+                                            0 (120 reviews)
+                                        </span>
+                                    </div>
+                                    <div class="brands">
+                                        <h4>Brand:</h4>
+                                        <a href="{{ route('ecommerce.product.brand', $product->brands->slug) }}"><p>{{ $product->brands->name }}</p></a>
+                                    </div>
+                                    <div class="warranty">
+                                        <h4>Warranty:</h4>
+                                        <p>{{ $product->warranties->name }}</p>
+                                    </div>
+                                    <div class="price">
+                                        <h4>Price :</h4>
+                                        {{-- <p>$99 <span>$149</span></p> --}}
+                                        <p>Rp. {{ number_format($product->price, 0) }}</p>
+                                    </div>
+                                    <div class="quantity">
+                                        <h4>Quantity:</h4>
+                                        <div class="qty">
+                                            {{-- <button class="btn-minus"><i class="fa fa-minus"></i></button> --}}
+                                            <a href="javascript:void(0);" id="minusQty" class="btn" onclick="minusQty();">
+                                                <i class="fa fa-minus"></i>
+                                            </a>
+                                            <input type="text" id="qty" value="1" name="quantity">
+                                            <a href="javascript:void(0);" id="plusQty" class="btn" onclick="plusQty()">
+                                                <i class="fa fa-plus"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="action">
+                                        <button class="btn" name="action" value="add"><i class="fa fa-shopping-cart"></i>Add to Cart</button>
+                                        <button class="btn" name="action" value="buy"><i class="fa fa-shopping-bag"></i>Buy Now</button>
                                     </div>
                                 </div>
-                                <div class="action">
-                                    <a class="btn" href="#"><i class="fa fa-shopping-cart"></i>Add to Cart</a>
-                                    <a class="btn" href="#"><i class="fa fa-shopping-bag"></i>Buy Now</a>
-                                </div>
-                            </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -281,6 +289,53 @@
 <!-- Brand End -->
 @endsection
 
+@section('scripts')
+<script>
+    function plusQty()
+    {
+        let value = parseInt(document.querySelector("#qty").value, 10);
+        value = isNaN(value) ? 0 : value;
+        value++;
+        document.getElementById('qty').value = value;
+    }
+
+    function minusQty()
+    {
+        let value = parseInt(document.querySelector("#qty").value, 10);
+
+        if (value > 1)
+        {
+            value--;
+            document.getElementById('qty').value = value;
+        }
+    }
+
+    $(document).ready(function() {
+        // $.ajaxSetup({
+        //     headers: {
+        //     'X-CSRF-TOKEN' : $('meta[name="csrf-token"]').attr('content')
+        //     }
+        // });
+
+        // $('#clickToAddCart').click(function(e) {
+        //     e.preventDefault();
+        //     let qty  = $('input[name="quantity"]').val();
+        //     let slug = $('.title').attr('slug');
+
+        //     $.ajax({
+        //         url: '{{ route("ecommerce.cart.store") }}',
+        //         method: 'POST',
+        //         data: {qty:qty, slug:slug},
+        //         dataType: 'JSON',
+        //         success: function(res) {
+        //             console.log(res);
+        //         }
+        //     })
+        // })
+    });
+</script>
+@endsection
+
 @section('css')
 <link rel="stylesheet" href="{{ asset('assets/front/css/custom.css') }}">
 <style>
@@ -323,6 +378,18 @@
     font-size: 18px;
     font-weight: 700;
     margin: 0;
+}
+
+.product-detail .product-content .quantity a {
+    width: 30px;
+    height: 30px;
+    padding: 2px 0;
+    font-size: 16px;
+    text-align: center;
+    color: #ffffff;
+    background: #FF6F61;
+    border: none;
+    margin-bottom: 12px;
 }
 </style>
 @endsection

@@ -9,29 +9,19 @@
 
             <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
                 <div class="navbar-nav mr-auto">
-                    <a href="{{ route('ecommerce.index') }}" class="nav-item nav-link active">Home</a>
-                    <a href="{{ route('ecommerce.product.index') }}" class="nav-item nav-link">Products</a>
-                    <a href="product-detail.html" class="nav-item nav-link">Product Detail</a>
-                    <a href="cart.html" class="nav-item nav-link">Cart</a>
+                    <a href="{{ route('ecommerce.index') }}" class="nav-item nav-link {{ Request::is('/') ? 'active' : '' }}">Home</a>
+                    <a href="{{ route('ecommerce.product.index') }}" class="nav-item nav-link {{ Request::is('products*') ? 'active' : '' }}">Products</a>
                     <a href="checkout.html" class="nav-item nav-link">Checkout</a>
-                    <a href="my-account.html" class="nav-item nav-link">My Account</a>
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">More Pages</a>
-                        <div class="dropdown-menu">
-                            <a href="wishlist.html" class="dropdown-item">Wishlist</a>
-                            <a href="login.html" class="dropdown-item">Login & Register</a>
-                            <a href="contact.html" class="dropdown-item">Contact Us</a>
-                        </div>
-                    </div>
+                    <a href="checkout.html" class="nav-item nav-link">Contact Us</a>
                 </div>
                 <div class="navbar-nav ml-auto">
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">User Account</a>
-                        <div class="dropdown-menu">
-                            <a href="#" class="dropdown-item">Login</a>
-                            <a href="#" class="dropdown-item">Register</a>
-                        </div>
-                    </div>
+                    @auth('members')
+                        <a href="my-account.html" class="nav-item nav-link">My Account</a>
+                        <a href="{{ route('ecommerce.logout') }}" class="nav-item nav-link">Logout</a>
+                    @else
+                        <a href="{{ route('ecommerce.login.index') }}" class="nav-item nav-link {{ Request::is('login') ? 'active' : '' }}">Login</a>
+                        <a href="{{ route('ecommerce.register.index') }}" class="nav-item nav-link {{ Request::is('register') ? 'active' : '' }}">Register</a>
+                    @endauth
                 </div>
             </div>
         </nav>

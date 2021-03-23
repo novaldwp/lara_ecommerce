@@ -95,7 +95,7 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
 <script src="{{ asset('assets/front/lib/easing/easing.min.js') }}"></script>
 <script src="{{ asset('assets/front/lib/slick/slick.min.js') }}"></script>
-
+@yield('scripts');
 <!-- Template Javascript -->
 <script src="{{ asset('assets/front/js/main.js') }}"></script>
 </body>
