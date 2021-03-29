@@ -16,7 +16,7 @@
                 </div>
                 <div class="navbar-nav ml-auto">
                     @auth('members')
-                        <a href="my-account.html" class="nav-item nav-link">My Account</a>
+                        <a href="{{ route('ecommerce.profile.index') }}" class="nav-item nav-link">My Account</a>
                         <a href="{{ route('ecommerce.logout') }}" class="nav-item nav-link">Logout</a>
                     @else
                         <a href="{{ route('ecommerce.login.index') }}" class="nav-item nav-link {{ Request::is('login') ? 'active' : '' }}">Login</a>
@@ -46,18 +46,20 @@
                     <button><i class="fa fa-search"></i></button>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="user">
-                    <a href="wishlist.html" class="btn wishlist">
-                        <i class="fa fa-heart"></i>
-                        <span>(0)</span>
-                    </a>
-                    <a href="cart.html" class="btn cart">
-                        <i class="fa fa-shopping-cart"></i>
-                        <span>(0)</span>
-                    </a>
+            @auth('members')
+                <div class="col-md-3">
+                    <div class="user">
+                        <a href="wishlist.html" class="btn wishlist">
+                            <i class="fa fa-heart"></i>
+                            <span>(0)</span>
+                        </a>
+                        <a href="{{ route('ecommerce.cart.index') }}" class="btn cart">
+                            <i class="fa fa-shopping-cart"></i>
+                            <span>({{ \NavbarHelper::getCartCount(auth()->guard('members')->user()->id) ?? 0 }})</span>
+                        </a>
+                    </div>
                 </div>
-            </div>
+            @endauth
         </div>
     </div>
 </div>

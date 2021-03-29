@@ -33,4 +33,9 @@ class Product extends Model
     {
         return $this->hasOne('App\Models\Admin\ProductImage');
     }
+
+    public function carts()
+    {
+        return $this->hasMany('App\Models\Front\Cart');
+    }
 }

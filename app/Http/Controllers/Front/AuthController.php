@@ -9,13 +9,12 @@ use App\Models\Front\Member;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\MemberRegisterMail;
 use Str;
-use App\Providers\RouteServiceProvider;
 
 class AuthController extends Controller
 {
     public function loginForm()
     {
-        session()->has('backUrl') ? session()->put('backUrl', url()->previous()) : null;
+        session()->put('backUrl', url()->previous());
 
         return view('ecommerce.auth.login');
     }
@@ -29,12 +28,13 @@ class AuthController extends Controller
             $token = auth()->guard('members')->user()->active_token;
 
             if ($token)
+            {
                 return redirect()->route('ecommerce.login.index')->with([
                     'message' => 'You need to verify your email first if you want to get login access.'
                 ]);
+            }
 
-            return (session()->has('backUrl')) ?
-                redirect(session()->get('backUrl')) : redirect()->route('ecommerce.index');
+            return (session()->has('backUrl')) ? redirect(session()->get('backUrl')) : redirect()->route('ecommerce.index');
         }
 
         return back()->withErrors(['email' => 'The user credentials does not match on our records.']);
@@ -100,7 +100,7 @@ class AuthController extends Controller
 
     public function getTokenForgotPassword($token)
     {
-
+        // on going
     }
 
     public function logout()

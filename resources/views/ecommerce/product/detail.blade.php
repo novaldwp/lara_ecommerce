@@ -38,10 +38,11 @@
                             </div>
                         </div>
                         <div class="col-md-7">
-                            <form action="{{ route('ecommerce.cart.store') }}" method="post">
+                            <form action="{{ route('ecommerce.product.detail.action') }}" method="post">
                                 @csrf
                                 <div class="product-content">
-                                    <div class="title" slug="{{ $product->slug }}"><h2>{{ $product->name }}</h2></div>
+                                    <input type="hidden" name="slug" value="{{ $product->slug }}">
+                                    <div class="title"><h2>{{ $product->name }}</h2></div>
                                     <div class="info-product">
                                         <span class="sold-product">
                                             Sold : 123132
@@ -72,14 +73,14 @@
                                             <a href="javascript:void(0);" id="minusQty" class="btn" onclick="minusQty();">
                                                 <i class="fa fa-minus"></i>
                                             </a>
-                                            <input type="text" id="qty" value="1" name="quantity">
+                                            <input type="text" id="qty" value="1" name="amount">
                                             <a href="javascript:void(0);" id="plusQty" class="btn" onclick="plusQty()">
                                                 <i class="fa fa-plus"></i>
                                             </a>
                                         </div>
                                     </div>
                                     <div class="action">
-                                        <button class="btn" name="action" value="add"><i class="fa fa-shopping-cart"></i>Add to Cart</button>
+                                        <button class="btn" name="action" value="cart"><i class="fa fa-shopping-cart"></i>Add to Cart</button>
                                         <button class="btn" name="action" value="buy"><i class="fa fa-shopping-bag"></i>Buy Now</button>
                                     </div>
                                 </div>
@@ -161,7 +162,7 @@
                         <div class="{{ $relatedProductCount < 3 ? "col-lg-12":"col-lg-4" }}">
                             <div class="product-item">
                                 <div class="product-title">
-                                    <a href="#">{{ substr($related->name, 0, 60) }}</a>
+                                    <a href="{{ route('ecommerce.product.detail', [$related->categories->parent->slug, $related->categories->slug, $related->slug]) }}">{{ substr($related->name, 0, 60) }}</a>
                                     <div class="ratting">
                                         <i class="fa fa-star"></i>
                                         <i class="fa fa-star"></i>
@@ -179,8 +180,8 @@
                                         <a href="#"><i class="fa fa-heart"></i></a>
                                     </div>
                                 </div>
-                                <div class="product-price">
-                                    <h3><span>$</span>99</h3>
+                                <div class="product-price text-center">
+                                    <h3><span>Rp. </span>{{ number_format($related->price, 0) }}</h3>
                                 </div>
                             </div>
                         </div>
@@ -309,30 +310,6 @@
             document.getElementById('qty').value = value;
         }
     }
-
-    $(document).ready(function() {
-        // $.ajaxSetup({
-        //     headers: {
-        //     'X-CSRF-TOKEN' : $('meta[name="csrf-token"]').attr('content')
-        //     }
-        // });
-
-        // $('#clickToAddCart').click(function(e) {
-        //     e.preventDefault();
-        //     let qty  = $('input[name="quantity"]').val();
-        //     let slug = $('.title').attr('slug');
-
-        //     $.ajax({
-        //         url: '{{ route("ecommerce.cart.store") }}',
-        //         method: 'POST',
-        //         data: {qty:qty, slug:slug},
-        //         dataType: 'JSON',
-        //         success: function(res) {
-        //             console.log(res);
-        //         }
-        //     })
-        // })
-    });
 </script>
 @endsection
 

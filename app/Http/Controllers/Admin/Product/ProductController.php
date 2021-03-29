@@ -242,4 +242,13 @@ class ProductController extends Controller
     {
 
     }
+
+    public static function getProductBySlug($slug)
+    {
+        $product = Product::whereSlug($slug)->first();
+
+        if($product) return $product;
+
+        return false;
+    }
 }

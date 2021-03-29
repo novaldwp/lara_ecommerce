@@ -20,4 +20,9 @@ class Member extends Authenticatable
     {
         $this->attributes['password'] = bcrypt($value);
     }
+
+    public function carts()
+    {
+        return $this->hasMany('App\Models\Front\Cart');
+    }
 }

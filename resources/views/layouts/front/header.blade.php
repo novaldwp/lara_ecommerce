@@ -19,6 +19,7 @@
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
         <link href="{{ asset('assets/front/lib/slick/slick.css') }}" rel="stylesheet">
         <link href="{{ asset('assets/front/lib/slick/slick-theme.css') }}" rel="stylesheet">
+        <link href="{{ asset('vendor/sweetalert2/dist/sweetalert2.min.css') }}" rel="stylesheet" type="text/css"/>
 
         <!-- Template Stylesheet -->
         <link href="{{ asset('assets/front/css/style.css') }}" rel="stylesheet">

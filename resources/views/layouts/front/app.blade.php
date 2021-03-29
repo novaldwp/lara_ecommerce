@@ -7,3 +7,5 @@
         @yield('content')
 
         @include('layouts.front.footer')
+
+        @include('sweetalert::alert')

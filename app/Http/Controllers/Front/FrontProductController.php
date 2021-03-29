@@ -33,7 +33,6 @@ class FrontProductController extends Controller
                                     $q->where('slug', $brandSlug);
                                 })
                             ->paginate(9);
-                            // return $brandProducts;
         $randomProduct  = Product::inRandomOrder()->take(3)->with(['productimages', 'categories', 'categories.parent'])->get();
         $categories     = Category::with(['child'])->whereNull('parent_id')->orderBy('name')->get();
         $brands         = Brand::withCount(['products'])->orderBy('name')->get();
@@ -47,6 +46,7 @@ class FrontProductController extends Controller
         $currentParent = Category::whereSlug($categoryParentSlug)->first();
         $currentChild  = Category::whereSlug($categoryChildSlug)->first();
         if($currentParent == "" || $currentChild == "") abort(404);
+        // if ($currentParent == "") return "asdasd";
 
         $categoryProducts = Product::with(['productimages', 'categories', 'categories.parent'])
                             ->whereHas('categories', function($q) use($categoryChildSlug)
