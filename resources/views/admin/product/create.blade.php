@@ -102,6 +102,15 @@
                                     </div>
                                 </div>
                                 <div class="form-group row">
+                                    <label class="col-sm-2 text-right col-form-label">Specification : </label>
+                                    <div class="col-sm-9">
+                                        <textarea name="specification" id="" cols="30" rows="10" class="summernote-simple form-control @error('description') is-invalid @enderror" required>{{ old('specification') }}</textarea>
+                                        <div class="invalid-feedback">
+                                            {{ $errors->has('specification') ? $errors->first('specification'):"Please enter specification of product" }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
                                     <label class="col-sm-2 text-right col-form-label">Image : </label>
                                     <div class="col-sm-3">
                                         <div class="box-area {{ session()->has("error-image") ? "error":"" }}" id="custom-btn" onclick="image1Active()">

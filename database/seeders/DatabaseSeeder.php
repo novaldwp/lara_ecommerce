@@ -13,11 +13,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // User::factory(10)->create();
         User::create([
             'name'  => 'Admin',
             'email' => 'admin@admin.com',
             'password' => bcrypt('password')
         ]);
+
+        $provinces = 'public/db/provinces.sql';
+        \DB::unprepared(file_get_contents($provinces));
+        $this->command->info('Provinces table seeded!');
+
+        $cities = 'public/db/cities.sql';
+        \DB::unprepared(file_get_contents($cities));
+        $this->command->info('Cities table seeded!');
     }
 }

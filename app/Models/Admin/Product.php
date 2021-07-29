@@ -38,4 +38,9 @@ class Product extends Model
     {
         return $this->hasMany('App\Models\Front\Cart');
     }
+
+    public function orderproducts()
+    {
+        return $this->hasMany('App\Models\Front\OrderProduct');
+    }
 }

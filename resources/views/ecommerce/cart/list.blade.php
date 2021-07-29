@@ -14,22 +14,34 @@
 
 <!-- Cart Start -->
 <div class="cart-page">
+    @if ($errors->has('weight'))
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="cart-page-inner alert alert-danger">
+                        <i class="fa fa-exclamation-triangle"></i>
+                        {{ $errors->first('weight') }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
     <div class="container-fluid">
         <div class="row">
-            <form action="{{ route('ecommerce.cart.action') }}" method="post">
+            <form action="{{ route('ecommerce.cart.checkout') }}" method="post">
                 @csrf
-                <div class="col-lg-8">
+                <div class="col-lg-10">
                     <div class="cart-page-inner">
                         <div class="table-responsive">
                             <table class="table table-bordered" id="list-cart">
                                 <thead class="thead-dark">
                                     <tr>
-                                        <th width="15%"><a href="javascript:void(0);" id="buttonSelect" class="btn">Select</a></th>
+                                        <th width="1%"></th>
                                         <th>Product</th>
                                         <th width="15%">Price</th>
-                                        <th width="15%">Quantity</th>
-                                        <th width="18%">Total</th>
-                                        <th width="3%">Remove</th>
+                                        <th width="20%">Quantity</th>
+                                        <th width="17%">Total</th>
+                                        <th width="2%">Remove</th>
                                     </tr>
                                 </thead>
                                 <tbody class="align-middle" name="body-table" count="{{ $carts->count() }}">
@@ -48,23 +60,23 @@
                                             <td>Rp. {{ number_format($cart->products->price, 0) }}</td>
                                             <td>
                                                 <div class="quantity">
-                                                    <a href="javascript:void(0);" id="minusQty" order="{{ $cart->id }}" class="btn" value="123" onclick="minusQty({{ $cart->id }});">
+                                                    <a href="javascript:void(0);" id="minusCartQty" order="{{ $cart->id }}" class="btn" onclick="minusQty({{ $cart->id }});">
                                                         <i class="fa fa-minus"></i>
                                                     </a>
-                                                    <input type="text" id="qty" order="{{ $cart->id }}" value="{{ $cart->amount }}" name="amount[]">
-                                                    <a href="javascript:void(0);" id="plusQty" order="{{ $cart->id }}" class="btn" onclick="plusQty({{ $cart->id }})">
+                                                    <input type="text" id="qty" order="{{ $cart->id }}" value="{{ $cart->amount }}" name="amount[]" readonly>
+                                                    <a href="javascript:void(0);" id="plusCartQty" order="{{ $cart->id }}" class="btn" onclick="plusQty({{ $cart->id }})">
                                                         <i class="fa fa-plus"></i>
                                                     </a>
                                                 </div>
                                             </td>
-                                            <td>Rp. {{ number_format($cart->products->price * $cart->amount, 0) }}</td>
+                                            <td><p id="total-price-{{ $cart->id }}"> Rp. {{ number_format($cart->products->price * $cart->amount, 0) }}</p></td>
                                             <td>
                                                 <a href="javascript:void(0);" class="btn" id="delete" order="{{ $cart->id }}"><i class="fa fa-trash"></i></a>
                                             </td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="5" class="text-center"><img src="{{ asset('uploads/images/cart_empty.jpg') }}" width="100%"></td>
+                                            <td colspan="7" class="text-center"><img src="{{ asset('uploads/images/cart_empty.jpg') }}" width="100%"></td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -82,8 +94,7 @@
                                         <p>Grand Total<span id="grandTotal"><strong>Rp. 0</strong></span></p>
                                     </div>
                                     <div class="cart-btn">
-                                        <button name="action" value="update" id="cart-update" {{ $carts->count() == 0 ? "disabled" : "" }}>Update Cart</button>
-                                        <button name="action" value="checkout" id="cart-checkout">Checkout</button>
+                                        <button name="action" value="checkout" id="cart-checkout" class="">Checkout</button>
                                         <hr>
                                         <p class="mt-3">
                                             Shipping fee will be calculated when checkout
@@ -124,9 +135,6 @@
     }
 
     $(document).ready(function() {
-
-        let clickedSelect = false;
-
         $.ajaxSetup({
             headers: {
             'X-CSRF-TOKEN' : $('meta[name="csrf-token"]').attr('content')
@@ -196,15 +204,55 @@
             }
         })
 
-        $('#buttonSelect').on('click', function(e) {
+        $('a#plusCartQty').on('click', function(e) {
             e.preventDefault();
+            let id = $(this).attr('order');
 
-            $('input[type="checkbox"]').prop("checked", !clickedSelect);
-            clickedSelect = !clickedSelect;
-            this.innerHTML = clickedSelect ? "Deselect" : "Select";
+            $.ajax({
+                url: "api/cart/updateCartPlusQty",
+                method: "POST",
+                dataType: "JSON",
+                data: {id:id},
+                success: function(res, textStatus, xhr)
+                {
+                    if (xhr.status == 200)
+                    {
+                        $(`p#total-price-${id}`).html();
+                        $(`p#total-price-${id}`).text(res.total);
+                        calculateTotal();
+                    }
+                }
+            });
+        });
+
+        $('a#minusCartQty').on('click', function(e) {
+            e.preventDefault();
+            let id = $(this).attr('order');
+
+            $.ajax({
+                url: "api/cart/updateCartMinusQty",
+                method: "POST",
+                dataType: "JSON",
+                data: {id:id},
+                success: function(res, textStatus, xhr)
+                {
+                    if (xhr.status == 200)
+                    {
+                        $(`p#total-price-${id}`).html();
+                        $(`p#total-price-${id}`).text(res.total);
+                        calculateTotal();
+                    }
+                }
+            });
         });
 
         $(':checkbox').change(function(){
+            calculateTotal();
+        })
+
+        // CORE FUNCTION
+        function calculateTotal()
+        {
             var arrSelected = $(':checkbox:checked').map(function() {
                 return this.value;
             }).get();
@@ -222,7 +270,7 @@
                     }
                 }
             });
-        })
+        }
     });
 </script>
 @endsection

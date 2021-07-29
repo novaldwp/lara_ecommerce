@@ -13,9 +13,18 @@ use App\Http\Controllers\Front\FrontProductController;
 use App\Http\Controllers\Front\FrontProductDetailController;
 use App\Http\Controllers\Front\HomeController;
 use App\Http\Controllers\Front\MemberController;
+use App\Http\Controllers\Front\OrderController;
+use App\Http\Controllers\Front\PaymentController as FrontPaymentController;
 use Illuminate\Support\Facades\Route;
 
 // E-COMMERCE SECTION
+Route::group(['prefix' => 'secret'], function() {
+    Route::get('/', function() {
+        return route('login');
+    });
+    Auth::routes();
+});
+
 Route::group(['as' => 'ecommerce.'], function() {
 
     // ================================= AUTH ============================================
@@ -46,15 +55,29 @@ Route::group(['as' => 'ecommerce.'], function() {
             Route::delete('/address/{id}', [MemberController::class, 'deleteAddress'])->name('address.delete');
 
         });
-            // CART
+        // CART
         Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-        Route::post('/cart/check-out', [CartController::class, 'getAction'])->name('cart.action');
+        Route::post('/cart/check-out', [CartController::class, 'cartCheckOut'])->name('cart.checkout');
         Route::post('/cart/update', [CartController::class, 'updateCartItem'])->name('cart.update');
         Route::delete('/cart/delete/{id}', [CartController::class, 'deleteCartItem'])->name('cart.delete');
         // Route::get('/cart/check-out', [CartController::class, 'checkOutFromCart'])->name('cart.checkout.index');
         Route::group(['as' => 'product.'], function() {
             Route::post('/getActionCart', [FrontProductDetailController::class, 'getActionCart'])->name('detail.action');
             Route::post('/cart/store', [FrontProductDetailController::class, 'addToCart'])->name('detail.store');
+        });
+
+        // ORDER
+        Route::group(['as' => 'order.', 'prefix' => 'order'], function() {
+            Route::post('/coba', [OrderController::class, 'index'])->name('index');
+            Route::post('/store', [OrderController::class, 'createOrder'])->name('store');
+            // Route::get('/get-status-order/{id}', []);
+        });
+
+        // PAYMENT
+        Route::group(['as' => 'payment.', 'prefix' => 'payment'], function() {
+            Route::get('/coba', [FrontPaymentController::class, 'index'])->name('index');
+            Route::get('/get-payment-order/{id}', [FrontPaymentController::class, 'getPaymentFromOrderId'])->name('order');
+            Route::get('/get-payment-status/{id}', [FrontPaymentController::class, 'getPaymentStatusOrderId'])->name('status');
         });
     });
 
@@ -83,12 +106,5 @@ Route::group(['prefix' => 'admin'], function() {
         Route::resource('/payments', PaymentController::class)->except('show');
         Route::resource('/payment-methods', PaymentMethodController::class)->except('show');
     });
-});
-
-Route::group(['prefix' => 'secret'], function() {
-    Route::get('/', function() {
-        return route('login');
-    });
-    Auth::routes();
 });
 

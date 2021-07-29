@@ -12,178 +12,87 @@
     </div>
 </div>
 <!-- Breadcrumb End -->
-
+{{-- {{ dd($carts) }} --}}
 <!-- Checkout Start -->
 <div class="checkout">
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-lg-7">
-                <div class="checkout-inner">
-                    <div class="billing-address">
-                        <h2>Shipping Address</h2>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label>First Name</label>
-                                <input class="form-control" type="text" value="{{ auth()->guard('members')->user()->first_name }}" readonly>
-                            </div>
-                            <div class="col-md-6">
-                                <label>Last Name</label>
-                                <input class="form-control" type="text" value="{{ auth()->guard('members')->user()->last_name ?? "" }}" readonly>
-                            </div>
-                            <div class="col-md-6">
-                                <label>E-mail</label>
-                                <input class="form-control" type="text" value="{{ auth()->guard('members')->user()->email }}" readonly>
-                            </div>
-                            <div class="col-md-6">
-                                <label>Mobile No</label>
-                                <input class="form-control" type="text" value="{{ auth()->guard('members')->user()->phone }}" readonly>
-                            </div>
-                            <div class="col-md-12">
-                                <label>Address</label>
-                                <select name="address_id" id="address_id" class="form-control">
-                                    @forelse ($addresses as $row)
-                                        <option value="{{ $row->id }}" data-city="{{ $row->cities->id }}"><strong>
-                                            {{ $row->name }} : </strong>
-                                            {{ $row->street }}, {{ $row->cities->name }}, {{ $row->provinces->name }}, {{ $row->postcode }}
-                                        </option>
-                                    @empty
-                                        <option value="">No Address Available</option>
-                                    @endforelse
-                                </select>
-                            </div>
-                            <div class="col-md-12">
-                                <label>Courier</label>
-                                <select name="courier" id="courier" class="form-control">
-                                    <option value="" selected disabled>Choose Courier</option>
-                                    <option value="jne">JNE</option>
-                                    <option value="pos">POS</option>
-                                    <option value="tiki">TIKI</option>
-                                </select>
-                            </div>
-                            <div class="col-md-12">
-                                <label>Service</label>
-                                <select name="courier_service" id="courier_service" class="form-control" disabled>
-                                    <option value="" selected>Choose Courier Service</option>
-                                </select>
+        <form action="{{ route('ecommerce.order.store') }}" method="post">
+            @csrf
+            <div class="row">
+                <div class="col-lg-7">
+                    <div class="checkout-inner">
+                        <div class="billing-address">
+                            <h2>Shipping Address</h2>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <input type="hidden" name="member_id" value="{{ auth()->guard('members')->user()->id }}">
+                                    <input type="hidden" name="base_price" value="{{ $basePrice }}">
+                                    <input type="hidden" name="shipping_cost" value="">
+                                    <input type="hidden" name="total_price" value="">
+                                    @foreach($carts as $cart)
+                                    <input type="hidden" name="product_id[]" value="{{ $cart->product_id }}">
+                                    <input type="hidden" name="amount[]" value="{{ $cart->amount }}">
+                                    @endforeach
+                                    <label>First Name</label>
+                                    <input class="form-control" type="text" name="first_name" value="{{ auth()->guard('members')->user()->first_name }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Last Name</label>
+                                    <input class="form-control" type="text" name="last_name" value="{{ auth()->guard('members')->user()->last_name ?? "" }}">
+                                </div>
+                                <div class="col-md-12">
+                                    <label>Mobile No</label>
+                                    <input class="form-control" type="text" name="phone" value="{{ auth()->guard('members')->user()->phone }}">
+                                </div>
+                                <div class="col-md-12">
+                                    <label>Address</label>
+                                    <select name="address_id" id="address_id" class="form-control">
+                                        @forelse ($addresses as $row)
+                                            <option value="{{ $row->id }}" data-city="{{ $row->cities->id }}"><strong>
+                                                {{ $row->name }} : </strong>
+                                                {{ $row->street }}, {{ $row->cities->name }}, {{ $row->provinces->name }}, {{ $row->postcode }}
+                                            </option>
+                                        @empty
+                                            <option value="">No Address Available</option>
+                                        @endforelse
+                                    </select>
+                                </div>
+                                <div class="col-md-12">
+                                    <label>Shipping Courier</label>
+                                    <select name="shipping_courier" id="shipping_courier" class="form-control">
+                                        <option value="" selected disabled>Choose Courier</option>
+                                        <option value="jne">JNE</option>
+                                        <option value="pos">POS</option>
+                                        <option value="tiki">TIKI</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-12">
+                                    <label>Shipping Service</label>
+                                    <select name="shipping_service" id="shipping_service" class="form-control" disabled>
+                                        <option value="" selected>Choose Courier Service</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="checkout-inner">
-                    <div class="billing-address">
-                        <h2>Products List</h2>
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <div class="table-responsive table-checkout">
-                                    <table name="table-products" class="table table-bordered" id="list-cart">
-                                        <thead>
-                                            <th>Product</th>
-                                            <th>Quantity</th>
-                                            <th width="18%">Subtotal</th>
-                                            <th width="15%">Weight (gr.)</th>
-                                        </thead>
-                                        <tbody>
-                                            @forelse ($carts as $cart)
-                                                <tr class="">
-                                                    <td>
-                                                        <div class="img">
-                                                            <a href="{{ route('ecommerce.product.detail', [$cart->products->categories->parent->slug, $cart->products->categories->slug, $cart->products->slug]) }}">
-                                                                <img src="{{ asset($cart->products->productimages->thumb.$cart->products->productimages->image1) }}" alt="Image">
-                                                            </a>
-                                                            <p>{{ $cart->products->name }}</p>
-                                                        </div>
-                                                    </td>
-                                                    <td>{{ $cart->amount }}</td>
-                                                    <td>Rp. {{ number_format(($cart->products->price * $cart->amount), 0) }}</td>
-                                                    <td>{{ number_format($cart->products->weight * $cart->amount, 0) }}</td>
-                                                </tr>
-                                            @empty
-                                                <tr>
-                                                    <td colspan="5" class="text-center"><img src="{{ asset('uploads/images/cart_empty.jpg') }}" width="100%"></td>
-                                                </tr>
-                                            @endforelse
-                                        </tbody>
-                                    </table>
-                                </div>
+                <div class="col-lg-5">
+                    <div class="checkout-inner">
+                        <div class="checkout-summary">
+                            <h1>Cart Total</h1>
+                            <p class="sub-total" data-weight="{{ $totalWeight }}">Sub Total<span>Rp. {{ number_format($basePrice, 0) }}</span></p>
+                            <p class="ship-cost">Shipping Cost<span name="shipping_cost">Rp. 0</span></p>
+                            <h2>Grand Total<span name="total_price">Rp. 0</span></h2>
+                        </div>
+                        <div class="checkout-payment">
+                            <div class="checkout-btn">
+                                <button id="btn-order">Place Order</button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-5">
-                <div class="checkout-inner">
-                    <div class="checkout-summary">
-                        <h1>Cart Total</h1>
-                        <p class="sub-total" data-weight="{{ $totalWeight }}">Sub Total<span>Rp. {{ number_format($totalPrice, 0) }}</span></p>
-                        <p class="ship-cost">Shipping Cost<span>$1</span></p>
-                        <h2>Grand Total<span>$100</span></h2>
-                    </div>
-                    <div class="checkout-payment">
-                        <div class="payment-methods">
-                            <h1>Payment Methods</h1>
-                            <div class="payment-method">
-                                <div class="custom-control custom-radio">
-                                    <input type="radio" class="custom-control-input" id="payment-1" name="payment">
-                                    <label class="custom-control-label" for="payment-1">Paypal</label>
-                                </div>
-                                <div class="payment-content" id="payment-1-show">
-                                    <p>
-                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras tincidunt orci ac eros volutpat maximus lacinia quis diam.
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="payment-method">
-                                <div class="custom-control custom-radio">
-                                    <input type="radio" class="custom-control-input" id="payment-2" name="payment">
-                                    <label class="custom-control-label" for="payment-2">Payoneer</label>
-                                </div>
-                                <div class="payment-content" id="payment-2-show">
-                                    <p>
-                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras tincidunt orci ac eros volutpat maximus lacinia quis diam.
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="payment-method">
-                                <div class="custom-control custom-radio">
-                                    <input type="radio" class="custom-control-input" id="payment-3" name="payment">
-                                    <label class="custom-control-label" for="payment-3">Check Payment</label>
-                                </div>
-                                <div class="payment-content" id="payment-3-show">
-                                    <p>
-                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras tincidunt orci ac eros volutpat maximus lacinia quis diam.
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="payment-method">
-                                <div class="custom-control custom-radio">
-                                    <input type="radio" class="custom-control-input" id="payment-4" name="payment">
-                                    <label class="custom-control-label" for="payment-4">Direct Bank Transfer</label>
-                                </div>
-                                <div class="payment-content" id="payment-4-show">
-                                    <p>
-                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras tincidunt orci ac eros volutpat maximus lacinia quis diam.
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="payment-method">
-                                <div class="custom-control custom-radio">
-                                    <input type="radio" class="custom-control-input" id="payment-5" name="payment">
-                                    <label class="custom-control-label" for="payment-5">Cash on Delivery</label>
-                                </div>
-                                <div class="payment-content" id="payment-5-show">
-                                    <p>
-                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras tincidunt orci ac eros volutpat maximus lacinia quis diam.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="checkout-btn">
-                            <button>Place Order</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </form>
     </div>
 </div>
 <!-- Checkout End -->
@@ -220,6 +129,7 @@ tr {
 @endsection
 
 @section('scripts')
+<script src="{{ asset('js/convertrupiah.js') }}"></script>
 <script>
     $(document).ready(function() {
 
@@ -235,7 +145,7 @@ tr {
             $('#courier option[value=""]').prop('disabled', true);
         })
 
-        $('#courier').on('change', function(e) {
+        $('#shipping_courier').on('change', function(e) {
             e.preventDefault();
             let courier = $(this).val();
             let city = $('#address_id option:selected').data('city');
@@ -248,17 +158,45 @@ tr {
                 data: { courier:courier, city:city, weight:weight },
                 success: function(res)
                 {
-                    console.log(res.rajaongkir.results[0].costs);
-                    $('#courier_service').empty();
-                    $('#courier_service').append('<option selected disabled>Choose Courier Service</option>');
-                    $('#courier_service').prop('disabled', false);
+                    $('#shipping_service').empty();
+                    $('#shipping_service').append('<option selected disabled>Choose Courier Service</option>');
+                    $('#shipping_service').prop('disabled', false);
                     let data = res.rajaongkir.results[0].costs;
                     for (let i=0; i<data.length; i++)
                     {
-                        $('#courier_service').append('<option value="'+data[i].service+'" data-price="'+data[i].cost[0].value+'">'+data[i].description+' ('+data[i].service+')</option>');
+                        $('#shipping_service').append('<option value="'+data[i].service+'" data-price="'+data[i].cost[0].value+'">'+data[i].description+' ('+data[i].service+')</option>');
                     }
                 }
             })
+        })
+
+        $('#shipping_service').on('change', function(e) {
+            e.preventDefault();
+
+            let shipping_cost   = parseInt($('#shipping_service option:selected').data('price'));
+            let base_price      = parseInt($('input:hidden[name="base_price"]').val());
+            let total_price     = (shipping_cost + base_price);
+            $('span[name="shipping_cost"]').text(convertToRupiah(shipping_cost));
+            $('span[name="total_price"]').text(convertToRupiah(total_price));
+            $('input:hidden[name="shipping_cost"]').val(shipping_cost);
+            $('input:hidden[name="total_price"]').val(total_price);
+        });
+
+        $('#btn-order').on('click', function(e) {
+            let shipping_courier = $('#shipping_courier').val();
+            let shipping_service = $('#shipping_service').val();
+
+            if (shipping_courier == null || shipping_service == null)
+            {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Can\'t Proceed',
+                    text: 'Please complete the shipping form',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            }
         })
     })
 </script>

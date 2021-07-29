@@ -19,13 +19,13 @@ class CreateAddressesTable extends Migration
             $table->string('postcode');
             $table->text('street');
             $table->unsignedTinyInteger('is_default')->default(0);
-            $table->foreignId('province_id');
-            $table->foreignId('city_id');
-            $table->foreignId('member_id');
+            $table->foreignId('province_id')->nullable();
+            $table->foreignId('city_id')->nullable();
+            $table->foreignId('member_id')->nullable();
 
-            $table->foreign('province_id')->references('id')->on('provinces')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign('city_id')->references('id')->on('cities')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign('member_id')->references('id')->on('members')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('province_id')->references('id')->on('provinces')->onUpdate('cascade')->onDelete('set null');
+            $table->foreign('city_id')->references('id')->on('cities')->onUpdate('cascade')->onDelete('set null');
+            $table->foreign('member_id')->references('id')->on('members')->onUpdate('cascade')->onDelete('set null');
             $table->timestamps();
         });
     }

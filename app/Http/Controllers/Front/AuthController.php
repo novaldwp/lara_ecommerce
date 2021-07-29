@@ -33,8 +33,9 @@ class AuthController extends Controller
                     'message' => 'You need to verify your email first if you want to get login access.'
                 ]);
             }
-
-            return (session()->has('backUrl')) ? redirect(session()->get('backUrl')) : redirect()->route('ecommerce.index');
+            else {
+                return (session()->has('backUrl')) ? redirect(session()->get('backUrl')) : redirect()->route('ecommerce.index');
+            }
         }
 
         return back()->withErrors(['email' => 'The user credentials does not match on our records.']);

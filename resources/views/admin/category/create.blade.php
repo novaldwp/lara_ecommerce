@@ -20,21 +20,12 @@
                                 <h4>Add New Category</h4>
                             </div>
                             <div class="card-body">
-                                <div class="form-group row has-error">
+                                <div class="form-group row">
                                     <label class="col-sm-2 text-right col-form-label">Name : </label>
                                     <div class="col-sm-9">
                                         <input type="text" class="form-control @error('name') is-invalid @enderror" name="name" required="" autofocus>
                                         <div class="invalid-feedback">
                                             {{ $errors->has('name') ? $errors->first('name'):"Please enter name of category" }}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group row has-error">
-                                    <label class="col-sm-2 text-right col-form-label">Icon : </label>
-                                    <div class="col-sm-9">
-                                        <input type="text" class="form-control @error('icon') is-invalid @enderror" name="icon" required="">
-                                        <div class="invalid-feedback">
-                                            {{ $errors->has('icon') ? $errors->first('icon'):"Please enter icon of category" }}
                                         </div>
                                     </div>
                                 </div>
@@ -57,7 +48,7 @@
                                 </div>
                             </div>
                             <div class="card-footer offset-md-2 text-left">
-                                <input type="submit" class="btn btn-primary">
+                                <input type="submit" class="btn btn-primary" name="submitButton">
                                 <a href="{{ route('categories.index') }}" class="btn btn-default">Back</a>
                             </div>
                         </form>

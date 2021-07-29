@@ -16,6 +16,7 @@
         "intervention/image": "^2.5",
         "laravel/framework": "^8.0",
         "laravel/tinker": "^2.0",
+        "midtrans/midtrans-php": "^2.3",
         "realrashid/sweet-alert": "^3.2"
     },
     "require-dev": {
@@ -42,7 +43,8 @@
             "Database\\Seeders\\": "database/seeders/"
         },
         "files" : [
-            "app/Helpers/NavbarHelper.php"
+            "app/Helpers/NavbarHelper.php",
+            "app/Helpers/ConvertRupiah.php"
         ]
     },
     "autoload-dev": {
