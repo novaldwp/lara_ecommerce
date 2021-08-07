@@ -22,4 +22,14 @@ class Address extends Model
     {
         return $this->belongsTo('App\Models\Front\City', 'city_id');
     }
+
+    public function members()
+    {
+        return $this->hasMany('App\Models\Front\Member', 'member_id');
+    }
+
+    public function orders()
+    {
+        return $this->hasMany('App\Models\Front\Order');
+    }
 }

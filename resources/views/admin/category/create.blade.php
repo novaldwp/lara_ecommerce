@@ -38,9 +38,6 @@
                                                 <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                                                 @foreach($cat->child as $catt)
                                                     <option value="{{ $catt->id }}">-- {{ $catt->name }}</option>
-                                                    @foreach($catt->child as $cattt)
-                                                        <option value="{{ $cattt->id }}">---- {{ $cattt->name }}</option>
-                                                    @endforeach
                                                 @endforeach
                                             @endforeach
                                         </select>

@@ -25,7 +25,6 @@ class MemberAddressRequest extends FormRequest
     {
         return [
             'name' => 'required|unique:addresses,name,'.request()->segment(3),
-            'member_id' => 'required|exists:members,id',
             'province_id' => 'required',
             'city_id' => 'required',
             'postcode' => 'required|numeric',

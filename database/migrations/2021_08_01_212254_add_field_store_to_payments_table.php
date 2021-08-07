@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddFieldPaymentMethodIdToPaymentsTable extends Migration
+class AddFieldStoreToPaymentsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class AddFieldPaymentMethodIdToPaymentsTable extends Migration
     public function up()
     {
         Schema::table('payments', function (Blueprint $table) {
-            $table->foreignId('payment_method_id')->after('bank_id');
+            $table->string('store')->nullable()->after('bank');
         });
     }
 
@@ -25,6 +25,8 @@ class AddFieldPaymentMethodIdToPaymentsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('payments');
+        Schema::table('payments', function (Blueprint $table) {
+            //
+        });
     }
 }

@@ -43,4 +43,14 @@ class Product extends Model
     {
         return $this->hasMany('App\Models\Front\OrderProduct');
     }
+
+    public function scopeProductById($query, $id)
+    {
+        return $query->where('id', $id)->first();
+    }
+
+    public function scopeProductBySlug($query, $slug)
+    {
+        return $query->where('slug', $slug)->first();
+    }
 }

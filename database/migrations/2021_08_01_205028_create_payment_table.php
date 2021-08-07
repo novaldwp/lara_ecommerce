@@ -3,29 +3,29 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
-class CreatePaymentsTable extends Migration
+class CreatePaymentTable extends Migration
 {
     /**
      * Run the migrations.
      *
      * @return void
      */
-
-    use SoftDeletes;
     public function up()
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('number');
-            $table->foreignId('bank_id');
-            $table->softDeletes();
+            $table->foreignId('order_id')->nullable();
+            $table->string('code')->unique();
+            $table->integer('amount', 20);
+            $table->string('payment_type');
+            $table->string('va_number')->nullable();
+            $table->string('bill_key')->nullable();
+            $table->string('biller_code')->nullable();
+            $table->string('token')->nullable();
+            $table->json('payload')->nullable();
+            $table->string('status');
             $table->timestamps();
-
-            $table->foreign('bank_id')->references('id')->on('banks')->onDelete('cascade')->onUpdate('cascade');
-
         });
     }
 

@@ -67,7 +67,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => 'Asia/Jakarta',
 
     /*
     |--------------------------------------------------------------------------
@@ -167,7 +167,7 @@ return [
          */
         RealRashid\SweetAlert\SweetAlertServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
-
+        yajra\DataTables\DataTablesServiceProvider::class,
         /*
          * Application Service Providers...
          */

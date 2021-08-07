@@ -17,7 +17,8 @@
         "laravel/framework": "^8.0",
         "laravel/tinker": "^2.0",
         "midtrans/midtrans-php": "^2.3",
-        "realrashid/sweet-alert": "^3.2"
+        "realrashid/sweet-alert": "^3.2",
+        "yajra/laravel-datatables-oracle": "^9.18"
     },
     "require-dev": {
         "facade/ignition": "^2.3.6",
@@ -44,7 +45,9 @@
         },
         "files" : [
             "app/Helpers/NavbarHelper.php",
-            "app/Helpers/ConvertRupiah.php"
+            "app/Helpers/ConvertRupiah.php",
+            "app/Helpers/ConvertTanggal.php",
+            "app/Helpers/StatusHelper.php"
         ]
     },
     "autoload-dev": {

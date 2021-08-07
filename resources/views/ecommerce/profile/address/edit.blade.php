@@ -17,7 +17,7 @@
         <div class="row">
             <div class="col-md-12">
                 <h4>Add New Address</h4>
-                <form action="{{ route('ecommerce.address.update', $address->id) }}" method="post">
+                <form action="{{ route('ecommerce.profile.address.update', $address->id) }}" method="post">
                     @csrf
                     @method('PATCH')
                     <div class="row">
@@ -34,7 +34,7 @@
                             <select name="province_id" id="province_id" class="form-control @error('province_id') is-invalid @enderror">
                                 <option value="" selected disabled>Select Province</option>
                                 @forelse ($provinces as $row)
-                                    <option value="{{ $row->id }}" {{ ($row->id == $address->id) ? "selected":"" }}>{{ $row->name }}</option>
+                                    <option value="{{ $row->id }}" {{ ($row->id == $address->province_id) ? "selected":"" }}>{{ $row->name }}</option>
                                 @empty
                                     <option disabled> -- Data Provinces Not Found --</option>
                                 @endforelse
@@ -44,8 +44,13 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <select name="city_id" id="city_id" class="form-control  @error('city_id') is-invalid @enderror" disabled>
+                            <select name="city_id" id="city_id" class="form-control  @error('city_id') is-invalid @enderror">
                                 <option value="" selected disabled>Select City</option>
+                                @forelse ($cities as $row)
+                                    <option value="{{ $row->id }}" {{ ($row->id == $address->city_id) ? "selected":"" }}>{{ $row->name }}</option>
+                                @empty
+                                    <option disabled> -- Data Provinces Not Found --</option>
+                                @endforelse
                             </select>
                             <div class="invalid-feedback mb-3">
                                 {{ $errors->has('city_id') ? $errors->first('city_id') : "" }}

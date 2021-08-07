@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Admin\Product\ProductController;
+use App\Models\Admin\Product;
 use App\Models\Front\Cart;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Http\Request;
@@ -24,30 +25,30 @@ class FrontProductDetailController extends Controller
 
     public function addToCart($request)
     {
-        $member_id            = auth()->guard('members')->user()->id;
+        $member_id = auth()->guard('members')->user()->id;
+        $product = Product::productBySlug($request->slug);
 
-        // return Cart::where('member_id', $member_id)->count();
-        $product_id           = ProductController::getProductBySlug($request->slug)->id;
-        if (!$product_id || !$member_id) abort(503);
+        if (!$product->id || !$member_id) abort(503);
 
         $cart = Cart::where([
                     ['member_id', $member_id],
-                    ['product_id', $product_id]
+                    ['product_id', $product->id]
                 ])
                 ->first();
-
         if ($cart)
         {
             $cart->update([
-                'amount' => $request->amount + $cart->amount
+                'amount' => $request->amount + $cart->amount,
+                'sub_total' => $product->price * ($request->amount + $cart->amount)
             ]);
 
             Alert::success("Success", "Berhasil memperbaharui quantity ke cart");
         }
         else {
-            $params['product_id'] = $product_id;
+            $params['product_id'] = $product->id;
             $params['member_id']  = $member_id;
             $params['amount']     = $request->amount;
+            $params['sub_total']  = $product->price * $request->amount;
 
             \DB::transaction(
                 function() use($params) {

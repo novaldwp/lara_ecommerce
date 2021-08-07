@@ -3,62 +3,59 @@
 namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin\Product;
 use Illuminate\Http\Request;
 use App\Models\Front\Order;
-use App\Models\Front\OrderProduct;
+use App\Models\Front\City;
+use App\Models\Admin\Payment;
+use App\Services\CartService;
+use App\Services\OrderService;
 use GuzzleHttp\Client;
+use Datatables;
 
 class OrderController extends Controller
 {
-    public function createOrder(Request $request)
+    public function getOrderByMemberId(OrderService $order)
     {
-        // return $request;
-        $count          = count($request->product_id);
-        $productData    = [];
 
-        $orderData = [
-            'code'              => $this->createOrderCode(),
-            'member_id'         => auth()->guard('members')->user()->id,
-            'address_id'        => $request->address_id,
-            'first_name'        => $request->first_name,
-            'last_name'         => $request->last_name,
-            'phone'             => $request->phone,
-            'base_price'        => $request->base_price,
-            'shipping_cost'     => $request->shipping_cost,
-            'total_price'       => $request->total_price,
-            'shipping_courier'  => $request->shipping_courier,
-            'shipping_service'  => $request->shipping_service,
-            'status'            => 9
-        ];
-
-        for ($i=0; $i<$count; $i++)
-        {
-            $productData[$i]['product_id']  = $request->product_id[$i];
-            $productData[$i]['amount']      = $request->amount[$i];
+        if (request()->ajax()) {
+            $orders = $order->getOrderMember();
+            return datatables()::of($orders)
+            ->addColumn('order_date', function($data) {
+                return getDateTimeIndo($data->order_date);
+            })
+            ->addColumn('total_price', function($data) {
+                return "Rp. ". number_format($data->total_price, 0);
+            })
+            ->addColumn('status', function($data) {
+                return getOrderStatusMember($data->status);
+            })
+            ->addColumn('action', function($data){
+                $button = '
+                    <a href="'. route ('ecommerce.profile.orders.detail', $data->id) . '" class="btn">Details</a>
+                ';
+                return $button;
+            })
+            ->rawColumns(['action', 'order_date', 'total_price', 'status'])
+            ->addIndexColumn()
+            ->make(true);
         }
 
-        $order = Order::create($orderData);
-        $order->orderproducts()->createMany($productData);
-
-
-        // return $productData;
-        // return $order->orderproducts();
-        return redirect()->route('ecommerce.payment.order', ['id' => $order->id]);
+        return view('ecommerce.profile.order.index');
     }
 
-    public function createOrderCode()
+    public function getOrderByIdMember($id, OrderService $order)
     {
-        $order = Order::orderByDesc('id')->first();
+        $order = $order->getOrderDetailMember($id);
 
-        if ($order)
-        {
-            $code = $order->code + 1;
-        }
-        else {
-            $code = 100001;
-        }
+        return view('ecommerce.profile.order.detail', compact('order'));
+    }
 
-        return $code;
+    public function createOrder(Request $request, OrderService $order, CartService $cart)
+    {
+        $order = $order->createOrder($request, $cart);
+
+        return redirect()->route('ecommerce.payment.order', ['id' => $order]);
     }
 
     public function getCity(Request $request)
@@ -87,7 +84,7 @@ class OrderController extends Controller
         $client = new Client();
         $response = $client->request('POST', $url, [
             'headers' => [
-                'key' => '930768209330949eb8869c7a7d0163de'
+                'key' => env('RAJAONGKIR_SERVER_KEY')
             ],
             'form_params' => [
                 'origin' => '151',

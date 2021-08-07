@@ -18,6 +18,7 @@ class CreateCartsTable extends Migration
             $table->foreignId('product_id');
             $table->foreignId('member_id');
             $table->unsignedTinyInteger('amount');
+            $table->integer('sub_total');
             $table->timestamps();
 
             $table->foreign('product_id')->references('id')->on('products')->onUpdate('cascade')->onDelete('cascade');

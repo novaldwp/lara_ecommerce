@@ -10,16 +10,33 @@ class Payment extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'number', 'bank_id', 'payment_method_id'
+        'order_id', 'code', 'amount', 'payment_type',
+        'va_number', 'bank', 'store', 'bill_key',
+        'biller_code', 'token', 'payload', 'status'
     ];
 
-    public function banks()
+    // config payment due
+    public static $expiry_unit = 'days';
+    public static $expiry_duration = 1;
+
+    // config payment status
+    public static $challenge = 'challenge';
+	public static $success = 'success';
+	public static $settlement = 'settlement';
+	public static $pending = 'pending';
+	public static $deny = 'deny';
+	public static $expire = 'expire';
+	public static $cancel = 'cancel';
+
+    public static $paymentCode = "PAY-";
+
+    public static function generateCode($order_code)
     {
-        return $this->belongsTo('App\Models\Admin\Bank', 'bank_id', 'id');
+        return self::$paymentCode . $order_code;
     }
 
-    public function payment_methods()
+    public function orders()
     {
-        return $this->belongsTo('App\Models\Admin\PaymentMethod', 'payment_method_id', 'id');
+        return $this->belongsTo('App\Models\Front\Order', 'order_id');
     }
 }

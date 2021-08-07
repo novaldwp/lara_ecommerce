@@ -30,7 +30,7 @@
         <div class="row">
             <form action="{{ route('ecommerce.cart.checkout') }}" method="post">
                 @csrf
-                <div class="col-lg-10">
+                <div class="col-lg-8">
                     <div class="cart-page-inner">
                         <div class="table-responsive">
                             <table class="table table-bordered" id="list-cart">

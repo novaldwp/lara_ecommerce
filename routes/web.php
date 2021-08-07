@@ -25,6 +25,9 @@ Route::group(['prefix' => 'secret'], function() {
     Auth::routes();
 });
 
+Route::get('/testing', function() {
+    return bcrypt("asdqwe");
+});
 Route::group(['as' => 'ecommerce.'], function() {
 
     // ================================= AUTH ============================================
@@ -43,11 +46,17 @@ Route::group(['as' => 'ecommerce.'], function() {
     Route::group(['middleware' => 'members'], function() {
         Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
         // PROFILE
-        Route::group(['prefix' => 'profile'], function() {
+        Route::group(['prefix' => 'profile', 'as' => 'profile.'], function() {
+            Route::get('/dashboard', [MemberController::class, 'index'])->name('index');
 
-            Route::get('/', [MemberController::class, 'index'])->name('profile.index');
-            Route::patch('/account/update-detail/{id}', [MemberController::class, 'updateDetail'])->name('profile.detail');
-            Route::patch('/account/update-password/{id}', [MemberController::class, 'updatePassword'])->name('profile.password');
+            Route::get('/orders', [OrderController::class, 'getOrderByMemberId'])->name('orders');
+            Route::get('/orders/detail/{id}', [OrderController::class, 'getOrderByIdMember'])->name('orders.detail');
+
+            Route::get('/account', [MemberController::class, 'account'])->name('account');
+            Route::patch('/account/update-detail/{id}', [MemberController::class, 'updateDetailMember'])->name('account.detail.update');
+            Route::patch('/account/update-password/{id}', [MemberController::class, 'updatePasswordMember'])->name('account.password.update');
+
+            Route::get('/address', [MemberController::class, 'address'])->name('address');
             Route::get('/address/create', [MemberController::class, 'addAddress'])->name('address.create');
             Route::post('/address', [MemberController::class, 'storeAddress'])->name('address.store');
             Route::get('/address/{id}/edit', [MemberController::class, 'editAddress'])->name('address.edit');
@@ -78,10 +87,13 @@ Route::group(['as' => 'ecommerce.'], function() {
             Route::get('/coba', [FrontPaymentController::class, 'index'])->name('index');
             Route::get('/get-payment-order/{id}', [FrontPaymentController::class, 'getPaymentFromOrderId'])->name('order');
             Route::get('/get-payment-status/{id}', [FrontPaymentController::class, 'getPaymentStatusOrderId'])->name('status');
+            Route::get('get-payment-detail/{code}', [FrontPaymentController::class, 'getPaymentDetail'])->name('detail');
+            // Route::post('/notif-confirm', [FrontPaymentController::class, 'notifConfirm']);
         });
     });
 
-
+    Route::post('payment/notification', [FrontPaymentController::class, 'notification']);
+    Route::get('payment/completed', [FrontPaymentController::class, 'completed']);
     Route::get('/', [HomeController::class, 'index'])->name('index');
     Route::get('/product/{categoryParentSlug}/{categoryChildSlug}', [FrontProductController::class, 'getProductByCategory'])->name('product.category');
     Route::get('/product/{categoryParent}/{categoryChild}/{slug}', [ProductController::class, 'getDetailProduct'])->name('product.detail');

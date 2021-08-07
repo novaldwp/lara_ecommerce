@@ -32,7 +32,7 @@
                                 <div class="form-group row">
                                     <label class="col-sm-2 text-right col-form-label">Price : </label>
                                     <div class="col-sm-9">
-                                        <input type="text" class="form-control @error('price') is-invalid @enderror" name="price" value="{{ old('price') }}" required="">
+                                        <input type="text" class="form-control @error('price') is-invalid @enderror" name="price" value="{{ old('price') }}" oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\..*)\./g, '$1');" required="">
                                         <div class="invalid-feedback">
                                             {{ $errors->has('price') ? $errors->first('price'):"Please enter price of product" }}
                                         </div>
@@ -53,9 +53,11 @@
                                         <select name="category_id" id="category_id" title="Select Category of Product" class="select2 form-control @error('category_id') is-invalid @enderror" required="">
                                             <option value="" disabled selected></option>
                                             @foreach($categories as $cat)
-                                                <option value="{{ $cat->id }}" disabled>{{ $cat->name }}</option>
                                                 @foreach($cat->child as $catt)
-                                                    <option value="{{ $catt->id }}" {{ $catt->id == old('category_id') ? "selected" : ""}}>-- {{ $catt->name }}</option>
+                                                    <option value="{{ $catt->id }}" {{ $catt->id == old('category_id') ? "selected" : ""}} disabled>-- {{ $catt->name }}</option>
+                                                    @foreach($catt->child as $cattt)
+                                                        <option value="{{ $cattt->id }}" {{ $cattt->id == old('category_id') ? "selected" : ""}}>--- {{ $cattt->name }}</option>
+                                                    @endforeach
                                                 @endforeach
                                             @endforeach
                                         </select>

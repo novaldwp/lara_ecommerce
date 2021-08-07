@@ -107,11 +107,11 @@ class ProductController extends Controller
         $params['specification']= $request->specification;
         $params['is_featured']  = $request->is_featured;
         $params['status']       = $request->status;
-        $images['image1']       = $request->hasFile('image1') ? $this->uploadIMage($request->image1, $productImage->image1) : null;
-        $images['image2']       = $request->hasFile('image2') ? $this->uploadIMage($request->image2, $productImage->image2) : null;
-        $images['image3']       = $request->hasFile('image3') ? $this->uploadIMage($request->image3, $productImage->image3) : null;
-        $images['image4']       = $request->hasFile('image4') ? $this->uploadIMage($request->image4, $productImage->image4) : null;
-        $images['image5']       = $request->hasFile('image5') ? $this->uploadIMage($request->image5, $productImage->image5) : null;
+        $images['image1']       = $request->hasFile('image1') ? $this->uploadImage($request->image1, $productImage->image1) : null;
+        $images['image2']       = $request->hasFile('image2') ? $this->uploadImage($request->image2, $productImage->image2) : null;
+        $images['image3']       = $request->hasFile('image3') ? $this->uploadImage($request->image3, $productImage->image3) : null;
+        $images['image4']       = $request->hasFile('image4') ? $this->uploadImage($request->image4, $productImage->image4) : null;
+        $images['image5']       = $request->hasFile('image5') ? $this->uploadImage($request->image5, $productImage->image5) : null;
         // return $productImage;
         $update = \DB::transaction(
             function () use($product, $params) {
@@ -245,7 +245,7 @@ class ProductController extends Controller
 
     public static function getProductBySlug($slug)
     {
-        $product = Product::whereSlug($slug)->first();
+        $product = Product::where('slug', $slug)->first();
 
         if($product) return $product;
 

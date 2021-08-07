@@ -17,11 +17,10 @@
         <div class="row">
             <div class="col-md-12">
                 <h4>Add New Address</h4>
-                <form action="{{ route('ecommerce.address.store') }}" method="post">
+                <form action="{{ route('ecommerce.profile.address.store') }}" method="post">
                     @csrf
                     <div class="row">
                         <div class="col-md-12">
-                            <input type="hidden" name="member_id" value="{{ auth()->guard('members')->user()->id }}">
                             <input class="form-control @error('name') is-invalid @enderror" type="text" name="name"
                             value="{{ old('name') }}" placeholder="Name Address (e.g Home)" required>
                             <div class="invalid-feedback mb-3">
@@ -69,7 +68,7 @@
                             </label>
                         </div>
                         <div class="col-md-12">
-                            <button class="btn">Submit</button>
+                            <button type="submit" class="btn">Submit</button>
                             <br><br>
                         </div>
                     </div>

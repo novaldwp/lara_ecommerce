@@ -25,4 +25,9 @@ class Member extends Authenticatable
     {
         return $this->hasMany('App\Models\Front\Cart');
     }
+
+    public function addresses()
+    {
+        return $this->belongsTo('App\Models\Front\Address');
+    }
 }

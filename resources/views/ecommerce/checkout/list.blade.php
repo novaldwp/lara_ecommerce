@@ -48,12 +48,15 @@
                                     <label>Address</label>
                                     <select name="address_id" id="address_id" class="form-control">
                                         @forelse ($addresses as $row)
+                                            @if ($loop->first)
+                                                <option value="" selected disabled>Pilih Alamat</option>
+                                            @endif
                                             <option value="{{ $row->id }}" data-city="{{ $row->cities->id }}"><strong>
                                                 {{ $row->name }} : </strong>
                                                 {{ $row->street }}, {{ $row->cities->name }}, {{ $row->provinces->name }}, {{ $row->postcode }}
                                             </option>
                                         @empty
-                                            <option value="">No Address Available</option>
+                                            <option value="" selected>No Address Available</option>
                                         @endforelse
                                     </select>
                                 </div>
@@ -133,6 +136,10 @@ tr {
 <script>
     $(document).ready(function() {
 
+        let statusCourier = 0;
+        let statusService = 0;
+        let statusAddress = 0;
+
         $('#address_id').on('change', function(e) {
             e.preventDefault();
 
@@ -143,6 +150,8 @@ tr {
             $('#courier option[value=""]').prop('disabled', false);
             $('#courier').val("").change();
             $('#courier option[value=""]').prop('disabled', true);
+
+            if ($(this).val() != null) statusAddress = 1;
         })
 
         $('#shipping_courier').on('change', function(e) {
@@ -161,6 +170,7 @@ tr {
                     $('#shipping_service').empty();
                     $('#shipping_service').append('<option selected disabled>Choose Courier Service</option>');
                     $('#shipping_service').prop('disabled', false);
+                    statusCourier = 1;
                     let data = res.rajaongkir.results[0].costs;
                     for (let i=0; i<data.length; i++)
                     {
@@ -176,6 +186,8 @@ tr {
             let shipping_cost   = parseInt($('#shipping_service option:selected').data('price'));
             let base_price      = parseInt($('input:hidden[name="base_price"]').val());
             let total_price     = (shipping_cost + base_price);
+            statusService = 1;
+
             $('span[name="shipping_cost"]').text(convertToRupiah(shipping_cost));
             $('span[name="total_price"]').text(convertToRupiah(total_price));
             $('input:hidden[name="shipping_cost"]').val(shipping_cost);
@@ -185,9 +197,13 @@ tr {
         $('#btn-order').on('click', function(e) {
             let shipping_courier = $('#shipping_courier').val();
             let shipping_service = $('#shipping_service').val();
+            let address          = $('#address_id option:selected').val();
 
-            if (shipping_courier == null || shipping_service == null)
+            if ((statusAddress == 1 && statusCourier == 1 && statusService == 1))
             {
+                return true;
+            }
+            else {
                 e.preventDefault();
                 Swal.fire({
                     icon: 'warning',

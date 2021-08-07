@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddFieldIsSelectedToCartsTable extends Migration
+class AddFieldBankToPaymentsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddFieldIsSelectedToCartsTable extends Migration
      */
     public function up()
     {
-        Schema::table('carts', function (Blueprint $table) {
-            $table->unsignedTinyInteger('is_select')->after('amount')->default(0);
+        Schema::table('payments', function (Blueprint $table) {
+            $table->string('bank')->nullable()->after('va_number');
         });
     }
 
@@ -25,7 +25,7 @@ class AddFieldIsSelectedToCartsTable extends Migration
      */
     public function down()
     {
-        Schema::table('carts', function (Blueprint $table) {
+        Schema::table('payments', function (Blueprint $table) {
             //
         });
     }

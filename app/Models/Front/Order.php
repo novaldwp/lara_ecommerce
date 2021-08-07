@@ -22,4 +22,29 @@ class Order extends Model
     {
         return $this->hasMany('App\Models\Front\OrderProduct');
     }
+
+    public function addresses()
+    {
+        return $this->belongsTo('App\Models\Front\Address', 'address_id');
+    }
+
+    public function payments()
+    {
+        return $this->hasOne('App\Models\Admin\Payment');
+    }
+
+    public function scopeGenerateCode($query)
+    {
+        $order = $query->orderByDesc('id')->first();
+
+        if ($order)
+        {
+            $code = (int)$order->code + 1;
+        }
+        else {
+            $code = 1000030;
+        }
+
+        return $code;
+    }
 }

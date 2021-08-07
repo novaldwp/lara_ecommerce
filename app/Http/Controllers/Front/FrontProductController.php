@@ -46,7 +46,6 @@ class FrontProductController extends Controller
         $currentParent = Category::whereSlug($categoryParentSlug)->first();
         $currentChild  = Category::whereSlug($categoryChildSlug)->first();
         if($currentParent == "" || $currentChild == "") abort(404);
-        // if ($currentParent == "") return "asdasd";
 
         $categoryProducts = Product::with(['productimages', 'categories', 'categories.parent'])
                             ->whereHas('categories', function($q) use($categoryChildSlug)

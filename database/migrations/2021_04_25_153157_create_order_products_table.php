@@ -18,6 +18,7 @@ class CreateOrderProductsTable extends Migration
             $table->foreignId('order_id')->nullable();
             $table->foreignId('product_id')->nullable();
             $table->tinyInteger('amount');
+            $table->integer('sub_total');
             $table->timestamps();
 
             $table->foreign('order_id')->references('id')->on('orders')->onUpdate('cascade')->onDelete('set null');

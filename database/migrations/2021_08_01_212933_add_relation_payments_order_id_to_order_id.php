@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddRelationPaymentsToPaymentMethodsTable extends Migration
+class AddRelationPaymentsOrderIdToOrderId extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class AddRelationPaymentsToPaymentMethodsTable extends Migration
     public function up()
     {
         Schema::table('payments', function (Blueprint $table) {
-            $table->foreign('payment_method_id')->references('id')->on('payment_methods')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('order_id')->references('id')->on('orders')->onUpdate('cascade')->onDelete('set null');
         });
     }
 
