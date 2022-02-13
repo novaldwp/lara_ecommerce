@@ -1,28 +1,28 @@
 @extends('layouts.app')
 
+@section('title')
+    {{ $title }}
+@endsection
+
 @section('content')
     <section class="section">
-        <div class="section-header">
-            <h3 class="page__heading">Manage Brands</h3>
-            <div class="section-header-breadcrumb">
-                <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
-                <div class="breadcrumb-item"><a href="#">Manage Products</a></div>
-                <div class="breadcrumb-item">Brands</div>
-            </div>
-        </div>
+        @include('admin._partial.breadcrumb')
         <div class="section-body">
             <div class="row">
                 <div class="col-lg-12">
                     <div class="card">
-                        <form class="needs-validation" method="POST" action="{{ route('products.update', $product->id) }}" novalidate="" enctype="multipart/form-data">
+                        <form class="needs-validation" method="POST" action="{{ route('admin.products.update', simple_encrypt($product->id)) }}" novalidate="" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
                             <div class="card-header">
-                                <h4>Edit Brand</h4>
+                                <h4>Ubah Produk</h4>
                             </div>
                             <div class="card-body">
+                                @if (session('error'))
+                                    <div class="alert alert-danger alert-dismissible fade show" role="alert">{{ session('error') }}</div>
+                                @endif
                                 <div class="form-group row">
-                                    <label class="col-sm-2 text-right col-form-label">Name : </label>
+                                    <label class="col-sm-2 text-right col-form-label">Nama Produk : </label>
                                     <div class="col-sm-9">
                                         <input type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ $product->name }}" required="" autofocus>
                                         <div class="invalid-feedback">
@@ -31,32 +31,40 @@
                                     </div>
                                 </div>
                                 <div class="form-group row">
-                                    <label class="col-sm-2 text-right col-form-label">Price : </label>
+                                    <label class="col-sm-2 text-right col-form-label">Harga : </label>
                                     <div class="col-sm-9">
-                                        <input type="text" class="form-control @error('price') is-invalid @enderror" name="price" value="{{ $product->price }}" required="">
+                                        <input type="text" class="form-control @error('price') is-invalid @enderror" name="price" oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\..*)\./g, '$1');" value="{{ $product->price }}" required="">
                                         <div class="invalid-feedback">
                                             {{ $errors->has('price') ? $errors->first('price'):"Please enter price of product" }}
                                         </div>
                                     </div>
                                 </div>
                                 <div class="form-group row">
-                                    <label class="col-sm-2 text-right col-form-label">Weight : </label>
+                                    <label class="col-sm-2 text-right col-form-label">Berat : </label>
                                     <div class="col-sm-9">
-                                        <input type="text" class="form-control @error('price') is-invalid @enderror" name="weight" value="{{ $product->weight }}" required="">
+                                        <input type="text" class="form-control @error('price') is-invalid @enderror" name="weight" oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\..*)\./g, '$1');" value="{{ $product->weight }}" required="">
                                         <div class="invalid-feedback">
                                             {{ $errors->has('weight') ? $errors->first('weight'):"Please enter weight of product" }}
                                         </div>
                                     </div>
                                 </div>
                                 <div class="form-group row">
-                                    <label class="col-sm-2 text-right col-form-label">Category : </label>
+                                    <label class="col-sm-2 text-right col-form-label">Stok : </label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control @error('stock') is-invalid @enderror" name="stock" oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\..*)\./g, '$1');" value="{{ $product->stock }}" required="">
+                                        <div class="invalid-feedback">
+                                            {{ $errors->has('stock') ? $errors->first('stock'):"Please enter stock of product" }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 text-right col-form-label">Kategori : </label>
                                     <div class="col-sm-9">
                                         <select name="category_id" id="category_id" title="Select Category of Product" class="select2 form-control @error('category_id') is-invalid @enderror" required="">
                                             <option value="" disabled selected></option>
                                             @foreach($categories as $cat)
-                                                <option value="{{ $cat->id }}" disabled>{{ $cat->name }}</option>
                                                 @foreach($cat->child as $catt)
-                                                    <option value="{{ $catt->id }}" {{ $catt->id == $product->category_id ? "selected" : ""}}>-- {{ $catt->name }}</option>
+                                                    <option value="{{ $catt->id }}" {{ $catt->id == $product->category_id ? "selected" : ""}}> {{ $catt->name }}</option>
                                                 @endforeach
                                             @endforeach
                                         </select>
@@ -66,10 +74,10 @@
                                     </div>
                                 </div>
                                 <div class="form-group row">
-                                    <label class="col-sm-2 text-right col-form-label">Brand : </label>
+                                    <label class="col-sm-2 text-right col-form-label">Merk : </label>
                                     <div class="col-sm-9">
-                                        <select name="brand_id" id="brand_id" title="Select Brand of Product" class="select2 form-control @error('brand_id') is-invalid @enderror" required="">
-                                            <option value="" disabled selected></option>
+                                        <select name="brand_id" id="brand_id" title="Select Brand of Product" class="select2 form-control @error('brand_id') is-invalid @enderror">
+                                            <option value="">Tanpa Merk</option>
                                             @foreach($brands as $bra)
                                                 <option value="{{ $bra->id }}" {{ $bra->id == $product->brand_id ? "selected" : ""}}>{{ $bra->name }}</option>
                                             @endforeach
@@ -80,21 +88,7 @@
                                     </div>
                                 </div>
                                 <div class="form-group row">
-                                    <label class="col-sm-2 text-right col-form-label">Warranty : </label>
-                                    <div class="col-sm-9">
-                                        <select name="warranty_id" id="warranty_id" title="Select Warranty of Product" class="select2 form-control  @error('warranty_id') is-invalid @enderror" required="">
-                                            <option value="" disabled selected></option>
-                                            @foreach($warranties as $war)
-                                                <option value="{{ $war->id }}" {{ $war->id == $product->warranty_id ? "selected" : ""}}>{{ $war->name }}</option>
-                                            @endforeach
-                                        </select>
-                                        <div class="invalid-feedback">
-                                            {{ $errors->has('warranty_id') ? $errors->first('warranty_id'):"Please select warranty of product" }}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-sm-2 text-right col-form-label">Description : </label>
+                                    <label class="col-sm-2 text-right col-form-label">Deskripsi : </label>
                                     <div class="col-sm-9">
                                         <textarea name="description" id="" cols="30" rows="10" class="summernote-simple form-control" required>{{ $product->description }}</textarea>
                                         <div class="invalid-feedback">
@@ -103,7 +97,7 @@
                                     </div>
                                 </div>
                                 <div class="form-group row">
-                                    <label class="col-sm-2 text-right col-form-label">Specification : </label>
+                                    <label class="col-sm-2 text-right col-form-label">Spesifikasi : </label>
                                     <div class="col-sm-9">
                                         <textarea name="specification" id="" cols="30" rows="10" class="summernote-simple form-control" required>{{ $product->specification ?? "" }}</textarea>
                                         <div class="invalid-feedback">
@@ -112,7 +106,7 @@
                                     </div>
                                 </div>
                                 <div class="form-group row">
-                                    <label class="col-sm-2 text-right col-form-label">Image : </label>
+                                    <label class="col-sm-2 text-right col-form-label">Gambar : </label>
                                     <div class="col-sm-3">
                                         <div class="box-area {{ session()->has("error-image") ? "error":"" }}" id="custom-btn" onclick="image1Active()">
                                             <div class="image">
@@ -123,7 +117,7 @@
                                                     <i class="fa fa-image"></i>
                                                 </a>
                                             </div>
-                                            <header>Main Image</header>
+                                            <header>Gambar Utama</header>
 
                                             <input type="file" name="image1" hidden>
                                         </div>
@@ -138,7 +132,7 @@
                                                     <i class="fa fa-image"></i>
                                                 </a>
                                             </div>
-                                            <header>Additional Image</header>
+                                            <header>Gambar Tambahan</header>
 
                                             <input type="file" name="image2" hidden>
                                         </div>
@@ -153,7 +147,7 @@
                                                     <i class="fa fa-image"></i>
                                                 </a>
                                             </div>
-                                            <header>Additional Image</header>
+                                            <header>Gambar Tambahan</header>
 
                                             <input type="file" name="image3" hidden>
                                         </div>
@@ -168,7 +162,7 @@
                                                     <i class="fa fa-image"></i>
                                                 </a>
                                             </div>
-                                            <header>Additional Image</header>
+                                            <header>Gambar Tambahan</header>
 
                                             <input type="file" name="image4" hidden>
                                         </div>
@@ -183,7 +177,7 @@
                                                     <i class="fa fa-image"></i>
                                                 </a>
                                             </div>
-                                            <header>Additional Image</header>
+                                            <header>Gambar Tambahan</header>
 
                                             <input type="file" name="image5" hidden>
                                         </div>
@@ -195,12 +189,12 @@
                                     @endif
                                 </div>
                                 <div class="form-group row">
-                                    <label class="col-sm-2 text-right col-form-label">Featured : </label>
+                                    <label class="col-sm-2 text-right col-form-label">Unggulan : </label>
                                     <div class="col-sm-9">
                                         <select name="is_featured" id="is_featured" title="Select Status of Product" class="select2 form-control  @error('is_featured') is-invalid @enderror" required="">
                                             <option value="" disabled></option>
-                                            <option value="1" {{ $product->is_featured == 1 ? "selected" : "" }} >Yes</option>
-                                            <option value="0" {{ $product->is_featured == 0 ? "selected" : "" }} >No</option>
+                                            <option value="1" {{ $product->is_featured == 1 ? "selected" : "" }} >Ya</option>
+                                            <option value="0" {{ $product->is_featured == 0 ? "selected" : "" }} >Tidak</option>
                                         </select>
                                         <div class="invalid-feedback">
                                             {{ $errors->has('is_featured') ? $errors->first('is_featured'):"Please select featured of product" }}
@@ -212,8 +206,8 @@
                                     <div class="col-sm-9">
                                         <select name="status" id="status" title="Select Status of Product" class="select2 form-control  @error('status') is-invalid @enderror" required="">
                                             <option value="" disabled></option>
-                                            <option value="1" {{ $product->status == 1 ? "selected" : "" }} >Active</option>
-                                            <option value="0" {{ $product->status == 0 ? "selected" : "" }} >Not Active</option>
+                                            <option value="1" {{ $product->deleted_at == "" ? "selected" : "" }} >Aktif</option>
+                                            <option value="0" {{ $product->deleted_at != "" ? "selected" : "" }} >Tidak Aktif</option>
                                         </select>
                                         <div class="invalid-feedback">
                                             {{ $errors->has('status') ? $errors->first('status'):"Please select status of product" }}
@@ -222,8 +216,8 @@
                                 </div>
                             </div>
                             <div class="card-footer offset-md-2 text-left">
-                                <input type="submit" class="btn btn-primary">
-                                <a href="{{ route('products.index') }}" class="btn btn-default">Back</a>
+                                <input type="submit" class="btn btn-primary" value="Perbarui">
+                                <a href="{{ route('admin.products.index') }}" class="btn btn-default">Kembali</a>
                             </div>
                         </form>
                     </div>

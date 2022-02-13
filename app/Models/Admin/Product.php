@@ -4,14 +4,15 @@ namespace App\Models\Admin;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'name', 'slug', 'price', 'weight', 'category_id', 'brand_id', 'warranty_id', 'description', 'specification',
-        'is_featured', 'status'
+        'name', 'slug', 'price', 'weight', 'stock', 'category_id', 'brand_id', 'description', 'specification',
+        'is_featured', 'deleted_at'
     ];
 
     public function brands()
@@ -22,11 +23,6 @@ class Product extends Model
     public function categories()
     {
         return $this->belongsTo('App\Models\Admin\Category', 'category_id');
-    }
-
-    public function warranties()
-    {
-        return $this->belongsTo('App\Models\Admin\Warranty', 'warranty_id');
     }
 
     public function productimages()
@@ -44,6 +40,11 @@ class Product extends Model
         return $this->hasMany('App\Models\Front\OrderProduct');
     }
 
+    public function reviews()
+    {
+        return $this->hasMany('App\Models\Front\Review');
+    }
+
     public function scopeProductById($query, $id)
     {
         return $query->where('id', $id)->first();
@@ -52,5 +53,13 @@ class Product extends Model
     public function scopeProductBySlug($query, $slug)
     {
         return $query->where('slug', $slug)->first();
+    }
+
+    public function getAvgReviews()
+    {
+        return $this->hasMany('App\Models\Front\Review')
+            ->selectRaw('product_id, avg(reviews.rating) as avg_rating')
+            ->orderByDesc('rating')
+            ->groupBy('product_id');
     }
 }

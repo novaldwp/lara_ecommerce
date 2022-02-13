@@ -14,18 +14,18 @@ class CreateProductsTable extends Migration
             $table->id();
             $table->string('name');
             $table->text('slug');
-            $table->integer('price', 25);
+            $table->integer('price');
             $table->float('weight');
+            $table->integer('stock')->default(0);
             $table->longText('description');
+            $table->tinyInteger('is_featured');
             $table->foreignId('category_id');
-            $table->foreignId('brand_id');
-            $table->foreignId('warranty_id');
+            $table->foreignId('brand_id')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('brand_id')->references('id')->on('brands')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('warranty_id')->references('id')->on('warranties')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

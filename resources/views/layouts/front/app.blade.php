@@ -9,3 +9,12 @@
         @include('layouts.front.footer')
 
         @include('sweetalert::alert')
+
+        <script>
+            $(document).ready(function() {
+                $(document).on('click', 'a.fakeLogoutButton', function(e){
+                    e.preventDefault();
+                    $('.logoutButton').click();
+                })
+            });
+            </script>

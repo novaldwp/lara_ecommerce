@@ -13,4 +13,14 @@ class City extends Model
     {
         return $this->hasMany('App\Models\Front\Address');
     }
+
+    public function cities()
+    {
+        return $this->hasMany('App\Models\Front\Order');
+    }
+
+    public function profiles()
+    {
+        return $this->hasOne('App\Models\Admin\Profile');
+    }
 }

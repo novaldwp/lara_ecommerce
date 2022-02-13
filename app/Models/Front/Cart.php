@@ -10,7 +10,7 @@ class Cart extends Model
     use HasFactory;
 
     protected $fillable = [
-        'product_id', 'amount', 'member_id', 'sub_total'
+        'product_id', 'amount', 'user_id', 'sub_total'
     ];
 
     public function products()
@@ -18,8 +18,8 @@ class Cart extends Model
         return $this->belongsTo('App\Models\Admin\Product', 'product_id');
     }
 
-    public function members()
+    public function users()
     {
-        return $this->belongsTo('App\Models\Front\Member', 'member_id');
+        return $this->belongsTo('App\User', 'user_id');
     }
 }

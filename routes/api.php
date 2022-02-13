@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\Front\CartController;
-use App\Http\Controllers\Front\OrderController;
+use App\Http\Controllers\Admin\OrderController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -20,12 +20,9 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('/cart/selected-item', [CartController::class, 'getGrandTotalSelectedItem']);
-Route::post('/cart/updateCartPlusQty', [CartController::class, 'updateCartPlusQty']);
-Route::post('/cart/updateCartMinusQty', [CartController::class, 'updateCartMinusQty']);
+Route::get('/cart/add-product-to-cart/{id}', [CartController::class, 'addCart']);
 
 Route::get('/get-city', [OrderController::class, 'getCity']);
 Route::get('/get-city/selected-province', [OrderController::class, 'getCitySelectedProvince']);
-// Route::get('/get-shipping-cost', [OrderController::class, 'getShippingCost']);
-Route::get('/test', [OrderController::class, 'getShippingCost']);
+Route::get('/get-shipping-cost', [OrderController::class, 'getShippingCost']);
 Route::post('/order/set-order', [CartController::class, 'setOrderProduct']);

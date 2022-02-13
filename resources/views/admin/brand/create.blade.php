@@ -1,47 +1,47 @@
 @extends('layouts.app')
 
+@section('title')
+    {{ $title }}
+@endsection
+
 @section('content')
     <section class="section">
-        <div class="section-header">
-            <h3 class="page__heading">Manage Brands</h3>
-            <div class="section-header-breadcrumb">
-                <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
-                <div class="breadcrumb-item"><a href="#">Manage Products</a></div>
-                <div class="breadcrumb-item">Brands</div>
-            </div>
-        </div>
+        @include('admin._partial.breadcrumb')
         <div class="section-body">
             <div class="row">
                 <div class="col-lg-12">
                     <div class="card">
-                        <form class="needs-validation" method="POST" action="{{ route('brands.store') }}" novalidate="" enctype="multipart/form-data">
+                        <form class="needs-validation" method="POST" action="{{ route('admin.brands.store') }}" novalidate="" enctype="multipart/form-data">
                             @csrf
                             <div class="card-header">
-                                <h4>Add New Brand</h4>
+                                <h4>Tambah Merk</h4>
                             </div>
                             <div class="card-body">
+                                @if (session('error'))
+                                    <div class="alert alert-danger alert-dismissible fade show" role="alert">{{ session('error') }}</div>
+                                @endif
                                 <div class="form-group row has-error">
-                                    <label class="col-sm-2 text-right col-form-label">Name : </label>
+                                    <label class="col-sm-2 text-right col-form-label">Nama : </label>
                                     <div class="col-sm-9">
                                         <input type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name') }}" required="" autofocus>
                                         <div class="invalid-feedback">
-                                            {{ $errors->has('name') ? $errors->first('name'):"Please enter name of brand" }}
+                                            {{ $errors->has('name') ? $errors->first('name'):"Masukkan Nama Merk." }}
                                         </div>
                                     </div>
                                 </div>
                                 <div class="form-group row has-error">
-                                    <label class="col-sm-2 text-right col-form-label">Image : </label>
+                                    <label class="col-sm-2 text-right col-form-label">Gambar : </label>
                                     <div class="col-sm-9">
                                         <input type="file" class="form-control @error('image') is-invalid @enderror" name="image">
                                         <div class="invalid-feedback">
-                                            {{ $errors->has('image') ? $errors->first('image'):"Please select the valid image" }}
+                                            {{ $errors->has('image') ? $errors->first('image'):"Masukkan gambar dengan benar." }}
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="card-footer offset-md-2 text-left">
-                                <input type="submit" class="btn btn-primary">
-                                <a href="{{ route('brands.index') }}" class="btn btn-default">Back</a>
+                                <input type="submit" class="btn btn-primary" value="Simpan">
+                                <a href="{{ route('admin.brands.index') }}" class="btn btn-default">Kembali</a>
                             </div>
                         </form>
                     </div>

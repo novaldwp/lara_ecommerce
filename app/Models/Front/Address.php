@@ -10,7 +10,7 @@ class Address extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'postcode', 'street', 'is_default', 'member_id', 'province_id', 'city_id'
+        'name', 'postcode', 'street', 'user_id', 'province_id', 'city_id'
     ];
 
     public function provinces()
@@ -23,9 +23,9 @@ class Address extends Model
         return $this->belongsTo('App\Models\Front\City', 'city_id');
     }
 
-    public function members()
+    public function users()
     {
-        return $this->hasMany('App\Models\Front\Member', 'member_id');
+        return $this->belongsTo('App\Models\User', 'user_id');
     }
 
     public function orders()

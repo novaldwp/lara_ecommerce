@@ -7,10 +7,10 @@
     <title>Your Email Registration Verification</title>
 </head>
 <body>
-    <h2>Hello, {{ $member['first_name'] }} {{ $member['last_name'] }}</h2>
+    <h2>Hello, {{ $user['first_name'] }} {{ $user['last_name'] }}</h2>
     <br/>
     <p>Thank you for registered your account for <a href="{{ route('ecommerce.index') }}"><strong>E-Store</strong></a>.</p>
-    <p>But, before you can use your account, you need to click <a href="{{ route('ecommerce.register.verify', $member['active_token']) }}"><strong>here</strong></a> to able login your account!
+    <p>But, before you can use your account, you need to click <a href="{{ route('ecommerce.register.verify', $user['active_token']) }}"><strong>here</strong></a> to able login your account!
     <br/>
     <p>Thank you and enjoy your shopping only at <a href="{{ route('ecommerce.index') }}"><strong>E-Store</strong></a>.</p>
     <br/>

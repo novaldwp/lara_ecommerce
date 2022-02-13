@@ -1,12 +1,16 @@
 @extends('layouts.front.app')
 
+@section('title')
+    Keranjang | Toko Putra Elektronik
+@endsection
+
 @section('content')
 <!-- Breadcrumb Start -->
 <div class="breadcrumb-wrap">
     <div class="container-fluid">
         <ul class="breadcrumb">
-            <li class="breadcrumb-item"><a href="#">Home</a></li>
-            <li class="breadcrumb-item active">Cart</li>
+            <li class="breadcrumb-item"><a href="#">Beranda</a></li>
+            <li class="breadcrumb-item active">Keranjang</li>
         </ul>
     </div>
 </div>
@@ -28,7 +32,7 @@
     @endif
     <div class="container-fluid">
         <div class="row">
-            <form action="{{ route('ecommerce.cart.checkout') }}" method="post">
+            <form action="{{ route('ecommerce.orders.checkout') }}" method="post">
                 @csrf
                 <div class="col-lg-8">
                     <div class="cart-page-inner">
@@ -37,18 +41,19 @@
                                 <thead class="thead-dark">
                                     <tr>
                                         <th width="1%"></th>
-                                        <th>Product</th>
-                                        <th width="15%">Price</th>
-                                        <th width="20%">Quantity</th>
+                                        <th>Produk</th>
+                                        <th width="15%">Harga</th>
+                                        <th width="20%">Jumlah</th>
                                         <th width="17%">Total</th>
                                         <th width="2%">Remove</th>
                                     </tr>
                                 </thead>
                                 <tbody class="align-middle" name="body-table" count="{{ $carts->count() }}">
                                     @forelse ($carts as $cart)
+                                        @php $cart_id = simple_encrypt($cart->id); @endphp
                                         <input type="hidden" name="id[]" value="{{ $cart->id }}">
-                                        <tr class="order-{{ $cart->id }}">
-                                            <td><input type="checkbox" name="select[]" value="{{ $cart->id }}"></td>
+                                        <tr class="order-{{ $cart_id }}">
+                                            <td><input type="checkbox" name="select[]" value="{{ $cart_id }}"></td>
                                             <td>
                                                 <div class="img">
                                                     <a href="{{ route('ecommerce.product.detail', [$cart->products->categories->parent->slug, $cart->products->categories->slug, $cart->products->slug]) }}">
@@ -57,21 +62,21 @@
                                                     <p>{{ $cart->products->name }}</p>
                                                 </div>
                                             </td>
-                                            <td>Rp. {{ number_format($cart->products->price, 0) }}</td>
+                                            <td>{{ convert_to_rupiah($cart->products->price) }}</td>
                                             <td>
                                                 <div class="quantity">
-                                                    <a href="javascript:void(0);" id="minusCartQty" order="{{ $cart->id }}" class="btn" onclick="minusQty({{ $cart->id }});">
+                                                    <a href="javascript:void(0);" id="minusCartQty" order="{{ $cart_id }}" class="btn" onclick="minusQty('{{ $cart_id }}');">
                                                         <i class="fa fa-minus"></i>
                                                     </a>
-                                                    <input type="text" id="qty" order="{{ $cart->id }}" value="{{ $cart->amount }}" name="amount[]" readonly>
-                                                    <a href="javascript:void(0);" id="plusCartQty" order="{{ $cart->id }}" class="btn" onclick="plusQty({{ $cart->id }})">
+                                                    <input type="text" id="qty" order="{{ $cart_id }}" value="{{ $cart->amount }}" name="amount[]" readonly>
+                                                    <a href="javascript:void(0);" id="plusCartQty" order="{{ $cart_id }}" class="btn" onclick="plusQty('{{ $cart_id }}')">
                                                         <i class="fa fa-plus"></i>
                                                     </a>
                                                 </div>
                                             </td>
-                                            <td><p id="total-price-{{ $cart->id }}"> Rp. {{ number_format($cart->products->price * $cart->amount, 0) }}</p></td>
+                                            <td><p id="total-price-{{ $cart_id }}">{{ convert_to_rupiah($cart->products->price * $cart->amount) }}</p></td>
                                             <td>
-                                                <a href="javascript:void(0);" class="btn" id="delete" order="{{ $cart->id }}"><i class="fa fa-trash"></i></a>
+                                                <a href="javascript:void(0);" class="btn" id="delete" order="{{ $cart_id }}"><i class="fa fa-trash"></i></a>
                                             </td>
                                         </tr>
                                     @empty
@@ -90,15 +95,12 @@
                             <div class="col-md-12">
                                 <div class="cart-summary">
                                     <div class="cart-content">
-                                        <h1>Cart Summary</h1>
-                                        <p>Grand Total<span id="grandTotal"><strong>Rp. 0</strong></span></p>
+                                        <h1>Ringkasan Keranjang</h1>
+                                        <p>Total Berat<span id="totalWeight"><strong>0 Kg</strong></span></p>
+                                        <p>Total Harga<span id="totalPrice"><strong>Rp. 0</strong></span></p>
                                     </div>
                                     <div class="cart-btn">
                                         <button name="action" value="checkout" id="cart-checkout" class="">Checkout</button>
-                                        <hr>
-                                        <p class="mt-3">
-                                            Shipping fee will be calculated when checkout
-                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -116,8 +118,9 @@
 <script>
     function plusQty(val)
     {
-        let value = parseInt(document.querySelector('input[order="'+val+'"]').value, 10);
+        let value = parseInt(document.querySelector(`input[order="${val}"]`).value, 10);
 
+        console.log(value);
         value = isNaN(value) ? 0 : value;
         value++;
         document.querySelector('input[order="'+val+'"]').value = value;
@@ -125,7 +128,7 @@
 
     function minusQty(val)
     {
-        let value = parseInt(document.querySelector('input[order="'+val+'"]').value, 10);
+        let value = parseInt(document.querySelector(`input[order="${val}"]`).value, 10);
 
         if (value > 1)
         {
@@ -146,26 +149,27 @@
 
             let id = $(this).attr('order');
             Swal.fire({
-                title: 'Are you sure?',
-                text: "You won't be able to revert this!",
+                title: 'Apakah Kamu yakin?',
+                text: "Produk yang dipilih akan dihapus dari Keranjang",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, delete it!'
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Tidak'
                 }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        url: 'cart/delete/'+id,
+                        url: 'carts/delete/'+id,
                         method: 'delete',
                         dataType: 'JSON',
                         success: function(res)
                         {
                             $('tr.order-'+id).remove();
                             Swal.fire({
-                                icon: 'success',
-                                title: "Successfully",
-                                text: 'Delete cart item',
+                                icon: res.type,
+                                title: res.title,
+                                text: res.message,
                                 showConfirmButton: false,
                                 timer: 1500
                             });
@@ -181,9 +185,8 @@
                                 $('.align-middle').html(html);
                                 $('#cart-update').prop('disabled', true);
                             }
-                            else {
-                                $('#cart-update').prop('disabled', false);
-                            }
+
+                            $('span#countShoppingCart').text(`(${res.count})`);
                         }
                     });
                 }
@@ -206,19 +209,18 @@
 
         $('a#plusCartQty').on('click', function(e) {
             e.preventDefault();
-            let id = $(this).attr('order');
+            let cart_id = $(this).attr('order');
 
             $.ajax({
-                url: "api/cart/updateCartPlusQty",
-                method: "POST",
+                url: "carts/increaseProductAmountByCartId/"+cart_id,
+                method: "GET",
                 dataType: "JSON",
-                data: {id:id},
                 success: function(res, textStatus, xhr)
                 {
                     if (xhr.status == 200)
                     {
-                        $(`p#total-price-${id}`).html();
-                        $(`p#total-price-${id}`).text(res.total);
+                        $(`p#total-price-${cart_id}`).html();
+                        $(`p#total-price-${cart_id}`).text(res.total);
                         calculateTotal();
                     }
                 }
@@ -227,19 +229,18 @@
 
         $('a#minusCartQty').on('click', function(e) {
             e.preventDefault();
-            let id = $(this).attr('order');
+            let cart_id = $(this).attr('order');
 
             $.ajax({
-                url: "api/cart/updateCartMinusQty",
-                method: "POST",
+                url: "carts/decreaseProductAmountByCartId/"+cart_id,
+                method: "GET",
                 dataType: "JSON",
-                data: {id:id},
                 success: function(res, textStatus, xhr)
                 {
                     if (xhr.status == 200)
                     {
-                        $(`p#total-price-${id}`).html();
-                        $(`p#total-price-${id}`).text(res.total);
+                        $(`p#total-price-${cart_id}`).html();
+                        $(`p#total-price-${cart_id}`).text(res.total);
                         calculateTotal();
                     }
                 }
@@ -257,19 +258,46 @@
                 return this.value;
             }).get();
 
+            if (arrSelected.length < 1 )
+            {
+                clearTextWeightPrice();
+
+                return false;
+            }
+
             $.ajax({
-                url: "api/cart/selected-item",
+                url: "carts/selected-item",
                 method: "POST",
                 dataType: "JSON",
                 data: {array:arrSelected},
-                success: function(res, textStatus, xhr)
+                success: function(res)
                 {
-                    if (xhr.status == 200)
+                    if (res.type == "success")
                     {
-                        $('#grandTotal').html('<strong>Rp. '+res.grandTotal+'</strong>');
+                        $('#totalWeight').html('<strong>'+res.totalWeight+'</strong>');
+                        $('#totalPrice').html('<strong>'+res.totalPrice+'</strong>');
+                    }
+                    else {
+                        Swal.fire({
+                            icon: res.type,
+                            title: res.title,
+                            text: res.message,
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
+
+                        $('input:checkbox').prop('checked', false);
+                        clearTextWeightPrice()
+
                     }
                 }
             });
+        }
+
+        function clearTextWeightPrice()
+        {
+            $('#totalPrice').html('<strong>Rp. 0</strong>');
+            $('#totalWeight').html('<strong>0 Kg</strong>');
         }
     });
 </script>

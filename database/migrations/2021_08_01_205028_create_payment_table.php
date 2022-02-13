@@ -17,7 +17,7 @@ class CreatePaymentTable extends Migration
             $table->id();
             $table->foreignId('order_id')->nullable();
             $table->string('code')->unique();
-            $table->integer('amount', 20);
+            $table->integer('amount');
             $table->string('payment_type');
             $table->string('va_number')->nullable();
             $table->string('bill_key')->nullable();

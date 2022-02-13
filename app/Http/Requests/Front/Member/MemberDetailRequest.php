@@ -25,8 +25,8 @@ class MemberDetailRequest extends FormRequest
     {
         return [
             'first_name' => 'required|string',
-            'email'      => 'required|email|unique:members,email,'.auth()->guard('members')->user()->id,
-            'phone'      => 'required|numeric|unique:members,phone,'.auth()->guard('members')->user()->id
+            'email'      => 'required|email|unique:members,email,'.auth()->user()->id,
+            'phone'      => 'required|numeric|unique:members,phone,'.auth()->user()->id
         ];
     }
 }

@@ -6,58 +6,60 @@ use App\Http\Controllers\Controller;
 use App\Models\Admin\Brand;
 use App\Models\Admin\Category;
 use App\Models\Admin\Product;
+use App\Services\BrandService;
+use App\Services\CategoryService;
+use App\Services\ProductService;
 use Illuminate\Http\Request;
 
 class FrontProductController extends Controller
 {
+    private $productService;
+    private $categoryService;
+    private $brandService;
+
+    public function __construct(ProductService $productService, CategoryService $categoryService, BrandService $brandService)
+    {
+        $this->productService   = $productService;
+        $this->categoryService  = $categoryService;
+        $this->brandService     = $brandService;
+    }
+
     public function getProductList()
     {
-        $products       = Product::with(['productimages', 'categories', 'categories.parent'])->inRandomOrder()->paginate(9);
-        $randomProduct  = Product::inRandomOrder()->take(3)->with(['productimages', 'categories', 'categories.parent'])->get();
-        $categories     = Category::with(['child'])->whereNull('parent_id')->orderBy('name')->get();
-        $brands         = Brand::withCount(['products'])->orderBy('name')->get();
-        $brandsSlider   = Brand::inRandomOrder()->limit(6)->get();
+        $products       = $this->productService->getRandomProductsPaginate(9, "products");
+        $randomProducts = $this->productService->getRandomProductsLimitExceptThisSlugByCategoryId(3);
+        $categories     = $this->categoryService->getCategoriesHasChildHasProduct();
+        $brands         = $this->brandService->getAllBrandsWithCountProducts();
+        $brandsSlider   = $this->brandService->getRandomOrderBrandsWithLimit(6);
 
-        return view('ecommerce.product.list', compact('products', 'randomProduct', 'categories', 'brands', 'brandsSlider'));
+        return view('ecommerce.product.list', compact('products', 'randomProducts', 'categories', 'brands', 'brandsSlider'));
     }
 
     public function getProductByBrand($brandSlug)
     {
         $currentBrand   = Brand::select('id', 'name')->whereSlug($brandSlug)->first();
         if (!$currentBrand) abort(404);
-        $brandProducts  = Product::with([
-                                'brands', 'categories', 'productimages', 'categories.parent'
-                            ])
-                            ->whereHas('brands', function($q) use($brandSlug)
-                                {
-                                    $q->where('slug', $brandSlug);
-                                })
-                            ->paginate(9);
-        $randomProduct  = Product::inRandomOrder()->take(3)->with(['productimages', 'categories', 'categories.parent'])->get();
-        $categories     = Category::with(['child'])->whereNull('parent_id')->orderBy('name')->get();
-        $brands         = Brand::withCount(['products'])->orderBy('name')->get();
-        $brandsSlider   = Brand::inRandomOrder()->limit(6)->get();
+        $brandProducts  = $this->productService->getRandomProductsPaginate(9, "brands", $brandSlug);
+        $randomProducts = $this->productService->getRandomProductsLimitExceptThisSlugByCategoryId(3);
+        $categories     = $this->categoryService->getCategoriesHasChildHasProduct();
+        $brands         = $this->brandService->getAllBrandsWithCountProducts();
+        $brandsSlider   = $this->brandService->getRandomOrderBrandsWithLimit(6);
 
-        return view('ecommerce.product.brand', compact('brandProducts', 'randomProduct', 'categories', 'brands', 'brandsSlider', 'currentBrand'));
+        return view('ecommerce.product.brand', compact('brandProducts', 'randomProducts', 'categories', 'brands', 'brandsSlider', 'currentBrand'));
     }
 
     public function getProductByCategory($categoryParentSlug, $categoryChildSlug)
     {
-        $currentParent = Category::whereSlug($categoryParentSlug)->first();
-        $currentChild  = Category::whereSlug($categoryChildSlug)->first();
+        $currentParent = $this->categoryService->getCategoryBySlug($categoryParentSlug);
+        $currentChild  = $this->categoryService->getCategoryBySlug($categoryChildSlug);
         if($currentParent == "" || $currentChild == "") abort(404);
 
-        $categoryProducts = Product::with(['productimages', 'categories', 'categories.parent'])
-                            ->whereHas('categories', function($q) use($categoryChildSlug)
-                                {
-                                    $q->whereSlug($categoryChildSlug);
-                                })
-                            ->get();
-        $randomProduct    = Product::inRandomOrder()->take(3)->with(['productimages', 'categories', 'categories.parent'])->get();
-        $categories       = Category::with(['child'])->whereNull('parent_id')->orderBy('name')->get();
-        $brands           = Brand::withCount(['products'])->orderBy('name')->get();
-        $brandsSlider     = Brand::inRandomOrder()->limit(6)->get();
+        $categoryProducts   = $this->productService->getRandomProductsPaginate(9, "categories", $categoryChildSlug);
+        $randomProducts     = $this->productService->getRandomProductsLimitExceptThisSlugByCategoryId(3);
+        $categories         = $this->categoryService->getCategoriesHasChildHasProduct();
+        $brands             = $this->brandService->getAllBrandsWithCountProducts();
+        $brandsSlider       = $this->brandService->getRandomOrderBrandsWithLimit(6);
 
-        return view('ecommerce.product.category', compact('categoryProducts', 'randomProduct', 'categories', 'brands', 'brandsSlider', 'currentParent', 'currentChild'));
+        return view('ecommerce.product.category', compact('categoryProducts', 'randomProducts', 'categories', 'brands', 'brandsSlider', 'currentParent', 'currentChild'));
     }
 }

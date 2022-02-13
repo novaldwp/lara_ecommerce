@@ -4,11 +4,11 @@
         <div class="row">
             <div class="col-sm-6">
                 <i class="fa fa-envelope"></i>
-                support@email.com
+                {{ \ProfileHelper::getProfile()->email }}
             </div>
             <div class="col-sm-6">
                 <i class="fa fa-phone-alt"></i>
-                +012-345-6789
+                {{ str_replace("0", "+(62) ", substr(chunk_split(\ProfileHelper::getProfile()->phone, 4, "-"), 0, -1)) }}
             </div>
         </div>
     </div>

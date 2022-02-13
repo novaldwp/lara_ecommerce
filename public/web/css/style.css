@@ -1046,7 +1046,7 @@ select.form-control:not([size]):not([multiple]) {
 }
 
 .card.card-statistic-1 .card-body, .card.card-statistic-2 .card-body {
-    font-size: 26px;
+    font-size: 30px;
     font-weight: 700;
     color: #34395e;
     padding-bottom: 0;
@@ -1168,7 +1168,7 @@ select.form-control:not([size]):not([multiple]) {
 .card .card-stats .card-stats-item .card-stats-item-count {
     line-height: 1;
     margin-bottom: 8px;
-    font-size: 20px;
+    font-size: 26px;
     font-weight: 700;
 }
 

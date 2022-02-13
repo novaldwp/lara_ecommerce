@@ -8,6 +8,7 @@ use App\Models\Admin\Product;
 use App\Models\Front\Cart;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class FrontProductDetailController extends Controller
 {
@@ -50,7 +51,7 @@ class FrontProductDetailController extends Controller
             $params['amount']     = $request->amount;
             $params['sub_total']  = $product->price * $request->amount;
 
-            \DB::transaction(
+            DB::transaction(
                 function() use($params) {
                     $cart = Cart::create($params);
 

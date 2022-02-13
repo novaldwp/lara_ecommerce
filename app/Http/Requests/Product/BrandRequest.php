@@ -24,8 +24,9 @@ class BrandRequest extends FormRequest
     public function rules()
     {
         return [
-            'name'  => 'required|min:2|unique:categories,name'.($this->method('PUT') ? ','.$this->id:''),
-            'image' => 'mimes:jpg,jpeg,png,gif,svg'
+            // 'name'  => 'required|min:2|unique:brands,name'.($this->method() == "PUT" ? ','.simple_decrypt($this->brand):''),
+            'name'  => 'required|min:2|unique:brands,name,'.simple_decrypt($this->brand),
+            'image' => 'mimes:jpg,jpeg,png,gif,svg|max:2000'
         ];
     }
 }

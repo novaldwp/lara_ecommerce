@@ -16,7 +16,7 @@ class CreateOrdersTable extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->string('code');
-            $table->foreignId('member_id')->nullable();
+            $table->foreignId('user_id')->nullable();
             $table->foreignId('address_id')->nullable();
             $table->string('first_name');
             $table->string('last_name');
@@ -36,7 +36,7 @@ class CreateOrdersTable extends Migration
             $table->tinyInteger('status')->nullable();
             $table->timestamps();
 
-            $table->foreign('member_id')->references('id')->on('members')->onUpdate('cascade')->onDelete('set null');
+            $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('set null');
             $table->foreign('address_id')->references('id')->on('addresses')->onUpdate('cascade')->onDelete('set null');
             $table->foreign('confirm_by')->references('id')->on('users')->onUpdate('cascade')->onDelete('set null');
             $table->foreign('shipped_by')->references('id')->on('users')->onUpdate('cascade')->onDelete('set null');

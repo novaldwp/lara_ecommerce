@@ -33,6 +33,6 @@
                         </div>
                     </div>
                     <div class="payment-button">
-                        <a href="{{ route('ecommerce.product.index') }}" class="btn left">Shopping Again</a>
-                        <a href="{{ route('ecommerce.profile.orders') }}" class="btn right">Check Payment Status</a>
+                        <a href="{{ route('ecommerce.product.index') }}" class="btn left">Belanja Lagi</a>
+                        <a href="{{ route('ecommerce.profile.orders') }}" class="btn right">Cek Status Pembayaran</a>
                     </div>

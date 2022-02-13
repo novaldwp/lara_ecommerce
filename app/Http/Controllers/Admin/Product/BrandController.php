@@ -3,125 +3,92 @@
 namespace App\Http\Controllers\Admin\Product;
 
 use App\Http\Controllers\Controller;
-use App\Models\Admin\Brand;
 use App\Http\Requests\Product\BrandRequest;
-use Intervention\Image\Facades\Image;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Str;
-use RealRashid\SweetAlert\Facades\Alert;
+use App\Services\BrandService;
 
 class BrandController extends Controller
 {
-    private $oriPath;
-    private $thumbPath;
+    private $brandService;
 
-    public function __construct()
+    public function __construct(BrandService $brandService)
     {
-        $this->oriPath      = 'uploads/images/brands/';
-        $this->thumbPath    = 'uploads/images/brands/thumb/';
+        $this->brandService = $brandService;
     }
 
     public function index()
     {
-        $brands = Brand::orderByDesc('id')->paginate(5);
+        $title          = "Daftar Merk | Toko Putra Elektronik";
+        $countStatus    = $this->brandService->getCountStatusBrands();
+        $brands         = $this->brandService->getAllBrands(request());
 
-        return view('admin.brand.index', compact('brands'));
+        if (request()->ajax()) {
+            return datatables()::of($brands)
+            ->addColumn('status', function($data) {
+                $condition = ($data->deleted_at == "") ? "active" : "deactive";
+                $status = '<span class="badge ' . (($condition == "active") ? "badge-primary":"badge-danger")  . '">' . (($condition == "active") ? getStatus(1) : getstatus(0)) . '</span>';
+
+                return $status;
+            })
+            ->addColumn('images', function($data) {
+                $images = "";
+                $images .= '<a href="' . asset("uploads/images/brands/".$data->image) . '" data-lightbox="' . $data->slug . '" alt="' . $data->name . '">';
+                $images .= '<img src="' . asset("uploads/images/brands/thumb/".$data->image) . '" data-lightbox="' . $data->slug . '" alt="' . $data->name . '" width="80px" height="40px">';
+                $images .= '</a>';
+                return $images;
+            })
+            ->addColumn('action', function($data){
+                $button = "";
+                $button .= '<a href="' . route('admin.brands.edit', simple_encrypt($data->id)) . '" class="btn btn-success" >Ubah</a> &nbsp;&nbsp;&nbsp;';
+
+                if($data->deleted_at == "")
+                {
+                    $button .= '<button class="btn btn-danger" id="deleteButton" data-brand="' . simple_encrypt($data->id) . '">Non-Aktifkan</button>';
+                }
+                else {
+                    $button .= '<button class="btn btn-primary" id="restoreButton" data-brand="' . simple_encrypt($data->id) . '">Aktifkan</button>';
+                }
+
+                return $button;
+            })
+            ->rawColumns(['action', 'images', 'status'])
+            ->addIndexColumn()
+            ->make(true);
+        }
+        return view('admin.brand.index', compact('title', 'countStatus'));
     }
 
     public function create()
     {
-        return view('admin.brand.create');
+        $title = "Tambah Merk | Toko Putra Elektronik";
+
+        return view('admin.brand.create', compact('title'));
     }
 
     public function store(BrandRequest $request)
     {
-        $params['name']     = $request->name;
-        $params['slug']     = Str::slug($request->name);
-        $params['image']    = $request->hasFile('image') ? $this->uploadImage($request->image, "") : "";
-
-        $brand  = \DB::transaction(
-            function() use($params) {
-                $brand  = Brand::create($params);
-
-                return $brand;
-            }
-        );
-
-        Alert::success("Success", "Created New Brand");
-
-        return redirect()->route('brands.index');
+        return $this->brandService->create($request);
     }
 
     public function edit($id)
     {
-        $brand = Brand::findOrFail($id);
+        $title = "Ubah Merk | Toko Putra Elektronik";
+        $brand = $this->brandService->getBrandById($id);
 
-        return view('admin.brand.edit', compact('brand'));
+        return view('admin.brand.edit', compact('title', 'brand'));
     }
 
     public function update(BrandRequest $request, $id)
     {
-        $brand              = Brand::findOrFail($id);
-        $params['name']     = $request->name;
-        $params['slug']     = Str::slug($request->name);
-        $params['image']    = $request->hasFile('image') ? $this->uploadImage($request->image, $brand->image) : $brand->image;
-
-        $update = \DB::transaction(
-            function() use($brand, $params)
-            {
-                $brand->update($params);
-
-                return $brand;
-            }
-        );
-
-        Alert::success("Success", "Updating brand");
-
-        return redirect()->route('brands.index');
+        return $this->brandService->update($request, $id);
     }
 
     public function destroy($id)
     {
-        $brand  = Brand::findOrFail($id);
-
-        $delete = \DB::transaction(
-            function() use($brand) {
-                $brand->delete();
-
-                return $brand;
-            }
-        );
-
-        Alert::success("Success", "Deleting brand");
-
-        return redirect()->route('brands.index');
+        return $this->brandService->delete($id);
     }
 
-    public function uploadImage($img, $oldImg = null)
+    public function restore($id)
     {
-        // check directory
-        if (!File::isDirectory($this->oriPath))
-        {
-            // create new if not exist
-            File::makeDirectory($this->oriPath, 0777, true, true);
-            File::makeDirectory($this->thumbPath, 0777, true, true);
-        }
-
-        $imageName  = time().'.'.uniqid().'.'.$img->getClientOriginalExtension();
-
-        $image      = Image::make($img->getRealPath());
-        $image->save($this->oriPath.'/'.$imageName);
-        $image->resize(180, 180, function($cons)
-            {
-                $cons->aspectRatio();
-            })->save($this->thumbPath.'/'.$imageName);
-
-        if (!empty($oldImg))
-        {
-            File::delete($this->oriPath.'/'.$oldImg);
-            File::delete($this->thumbPath.'/'.$oldImg);
-        }
-
-        return $imageName;
+        return $this->brandService->restore($id);
     }
 }

@@ -1,28 +1,28 @@
 @extends('layouts.app')
 
+@section('title')
+    {{ $title }}
+@endsection
+
 @section('content')
     <section class="section">
-        <div class="section-header">
-            <h3 class="page__heading">Manage Brands</h3>
-            <div class="section-header-breadcrumb">
-                <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
-                <div class="breadcrumb-item"><a href="#">Manage Products</a></div>
-                <div class="breadcrumb-item">Brands</div>
-            </div>
-        </div>
+        @include('admin._partial.breadcrumb')
         <div class="section-body">
             <div class="row">
                 <div class="col-lg-12">
                     <div class="card">
-                        <form class="needs-validation" method="POST" action="{{ route('brands.update', $brand->id) }}" novalidate="" enctype="multipart/form-data">
+                        <form class="needs-validation" method="POST" action="{{ route('admin.brands.update', simple_encrypt($brand->id)) }}" novalidate="" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
                             <div class="card-header">
                                 <h4>Edit Brand</h4>
                             </div>
                             <div class="card-body">
+                                @if (session('error'))
+                                    <div class="alert alert-error alert-dismissible fade show" role="alert">{{ session('error') }}</div>
+                                @endif
                                 <div class="form-group row has-error">
-                                    <label class="col-sm-2 text-right col-form-label">Name : </label>
+                                    <label class="col-sm-2 text-right col-form-label">Nama : </label>
                                     <div class="col-sm-9">
                                         <input type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ $brand->name }}" required="" autofocus>
                                         <div class="invalid-feedback">
@@ -31,7 +31,7 @@
                                     </div>
                                 </div>
                                 <div class="form-group row has-error">
-                                    <label class="col-sm-2 text-right col-form-label">Image : </label>
+                                    <label class="col-sm-2 text-right col-form-label">Gambar : </label>
                                     <div class="col-sm-9">
                                         <div>
                                             <a href="{{ URL::to('uploads/images/'.($brand->image ? 'brands/'.$brand->image : 'no_image.png')) }}" data-lightbox="image-1" alt="{{ $brand->name }}">
@@ -47,8 +47,8 @@
                                 </div>
                             </div>
                             <div class="card-footer offset-md-2 text-left">
-                                <input type="submit" class="btn btn-primary">
-                                <a href="{{ route('brands.index') }}" class="btn btn-default">Back</a>
+                                <input type="submit" class="btn btn-primary" value="Ubah">
+                                <a href="{{ route('admin.brands.index') }}" class="btn btn-default">Kembali</a>
                             </div>
                         </form>
                     </div>

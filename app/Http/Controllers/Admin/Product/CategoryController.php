@@ -3,83 +3,94 @@
 namespace App\Http\Controllers\Admin\Product;
 
 use App\Http\Controllers\Controller;
-use App\Models\Admin\Category;
 use Illuminate\Http\Request;
 use App\Http\Requests\Product\CategoryRequest;
-use Illuminate\Support\Str;
-use DB;
-use Alert;
+use App\Services\CategoryService;
 
 class CategoryController extends Controller
 {
+    private $categoryService;
+
+    public function __construct(CategoryService $categoryService)
+    {
+        $this->categoryService = $categoryService;
+    }
+
     public function index()
     {
-        $categories = Category::with(['parent'])->orderByDesc('id')->paginate(5);
+        $title          = "Daftar Kategori | Toko Putra Elektronik";
+        $countStatus    = $this->categoryService->getCountStatusCategories();
+        $categories     = $this->categoryService->getAllCategories(request());
 
-        return view('admin.category.index', compact('categories'));
+        if (request()->ajax()) {
+            return datatables()::of($categories)
+            ->addColumn('parent', function($data) {
+                $parent = ($data->parent == "") ? " - " : $data->parent->name;
+
+                return $parent;
+            })
+            ->addColumn('status', function($data) {
+                $condition = ($data->deleted_at == "") ? "active" : "deactive";
+                $status = '<span class="badge ' . (($condition == "active") ? "badge-primary":"badge-danger")  . '">' . (($condition == "active") ? getStatus(1) : getstatus(0)) . '</span>';
+
+                return $status;
+            })
+            ->addColumn('action', function($data){
+                $button = "";
+                $button .= '<a href="' . route('admin.categories.edit', simple_encrypt($data->id)) . '" class="btn btn-success" >Ubah</a> &nbsp;&nbsp;&nbsp;';
+
+                if($data->deleted_at == "")
+                {
+                    $button .= '<button class="btn btn-danger" id="deleteButton" data-category="' . simple_encrypt($data->id) . '">Non-Aktifkan</button>';
+                }
+                else {
+                    $button .= '<button class="btn btn-primary" id="restoreButton" data-category="' . simple_encrypt($data->id) . '">Aktifkan</button>';
+                }
+
+                return $button;
+            })
+            ->rawColumns(['action', 'status'])
+            ->addIndexColumn()
+            ->make(true);
+        }
+
+        return view('admin.category.index', compact('title', 'countStatus'));
     }
 
     public function create()
     {
-        $categories = Category::with(['child'])->whereNull('parent_id')->orderBy('id')->get();
+        $title      = "Tambah Kategori | Toko Putra Elektronik";
+        $categories = $this->categoryService->getAllParentCategories();
 
-        return view('admin.category.create', compact('categories'));
+        return view('admin.category.create', compact('title', 'categories'));
     }
 
     public function store(CategoryRequest $request)
     {
-        $params['name']         = $request->name;
-        $params['slug']         = Str::slug($request->name);
-        $params['parent_id']    = $request->parent_id;
-
-        $category = \DB::transaction(
-            function() use ($params) {
-                $category = Category::create($params);
-
-                return $category;
-            }
-        );
-        Alert::success('Success', 'Created New Category');
-
-        return redirect()->route('categories.index');
+        return $this->categoryService->create($request);
     }
 
     public function edit($id)
     {
-        $category   = Category::findOrFail($id);
-        $categories = Category::with(['child'])->whereNull('parent_id')->orderBy('id')->get();
+        $title      = "Ubah Kategori | Toko Putra Elektronik";
+        $category   = $this->categoryService->getCategoryById($id);
+        $categories = $this->categoryService->getAllParentCategories();
 
-        return view('admin.category.edit', compact('category', 'categories'));
+        return view('admin.category.edit', compact('title', 'category', 'categories'));
     }
 
-    public function update(Request $request, $id)
+    public function update(CategoryRequest $request, $id)
     {
-        $params['name']         = $request->name;
-        $params['slug']         = Str::slug($request->name);
-        $params['parent_id']    = $request->parent_id;
-        $category               = Category::findOrFail($id);
-
-        $update = DB::transaction(
-            function() use ($params, $category)
-            {
-                $category->update($params);
-
-                return $category;
-            }
-        );
-
-        Alert::success('Success', 'Updating Category');
-
-        return redirect()->route('categories.index');
+        return $this->categoryService->update($request, $id);
     }
 
     public function destroy($id)
     {
-        $category = Category::findOrFail($id);
+        return $this->categoryService->delete($id);
+    }
 
-        $category->delete();
-        Alert::success('Success', 'Deleting Category');
-
-        return redirect()->back();
+    public function restore($id)
+    {
+        return $this->categoryService->restore($id);
     }
 }

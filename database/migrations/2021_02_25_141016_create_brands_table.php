@@ -3,14 +3,11 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CreateBrandsTable extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
+    use SoftDeletes;
     public function up()
     {
         Schema::create('brands', function (Blueprint $table) {
@@ -19,6 +16,7 @@ class CreateBrandsTable extends Migration
             $table->string('slug');
             $table->string('image');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

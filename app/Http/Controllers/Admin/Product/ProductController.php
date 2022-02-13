@@ -7,248 +7,242 @@ use App\Http\Requests\Product\ProductRequest;
 use App\Models\Admin\Brand;
 use App\Models\Admin\Category;
 use App\Models\Admin\Product;
-use App\Models\Admin\ProductImage;
-use App\Models\Admin\Warranty;
-use Intervention\Image\Facades\Image;
-use Illuminate\Support\Facades\File;
+use App\Services\BrandService;
+use App\Services\CategoryService;
+use App\Services\ProductService;
+use App\Services\ReviewService;
+use Illuminate\Http\Request;
 use RealRashid\SweetAlert\Facades\Alert;
 use Str;
 use Session;
 
 class ProductController extends Controller
 {
-    private $oriPath;
-    private $thumbPath;
+    private $productService;
+    private $categoryService;
+    private $brandService;
+    private $reviewService;
 
-    public function __construct()
+    public function __construct(ProductService $productService,CategoryService $categoryService, BrandService $brandService, ReviewService $reviewService)
     {
-        $this->oriPath      = 'uploads/images/products/';
-        $this->thumbPath    = 'uploads/images/products/thumb/';
+        $this->productService   = $productService;
+        $this->categoryService  = $categoryService;
+        $this->brandService     = $brandService;
+        $this->reviewService    = $reviewService;
     }
 
     public function index()
     {
-        $products = Product::with(['productimages', 'categories'])->orderByDesc('id')->paginate(5);
+        $title          = "Daftar Produk | Toko Putra Elektronik";
+        $countStatus    = $this->productService->getCountStatusProducts();
+        $products       = $this->productService->getAllProducts(request());
 
-        return view('admin.product.index', compact('products'));
+        if (request()->ajax()) {
+
+            return datatables()::of($products)
+            ->addColumn('name', function($data) {
+                $name = '<a href="' . route('admin.products.detail', simple_encrypt($data->id)) . '">' . $data->name . '</a>';
+
+                return $name;
+            })
+            ->addColumn('status', function($data) {
+                $condition = ($data->deleted_at == "") ? "active" : "deactive";
+                $status = '<span class="badge ' . (($condition == "active") ? "badge-primary":"badge-danger")  . '">' . (($condition == "active") ? getStatus(1) : getstatus(0)) . '</span>';
+
+                return $status;
+            })
+            ->addColumn('price', function($data) {
+                $price = convert_to_rupiah($data->price);
+
+                return $price;
+            })
+            ->addColumn('images', function($data) {
+                $images = "";
+                $images .= '<a href="' . asset($data->productimages->path.$data->productimages->image1) . '" data-lightbox="' . $data->slug . '" alt="' . $data->name . '">';
+                $images .= '<img src="' . asset($data->productimages->thumb.$data->productimages->image1) . '" data-lightbox="' . $data->slug . '" alt="' . $data->name . '" width="80px" height="40px">';
+                $images .= '</a>';
+
+                return $images;
+            })
+            ->addColumn('action', function($data){
+                $button = "";
+                $button .= '<a href="' . route('admin.products.edit', simple_encrypt($data->id)) . '" class="btn btn-success" >Ubah</a> &nbsp;&nbsp;&nbsp;';
+
+                if($data->deleted_at == "")
+                {
+                    $button .= '<button class="btn btn-danger" id="deleteButton" data-product="' . simple_encrypt($data->id) . '">Non-Aktifkan</button>';
+                }
+                else {
+                    $button .= '<button class="btn btn-primary" id="restoreButton" data-product="' . simple_encrypt($data->id) . '">Aktifkan</button>';
+                }
+
+                return $button;
+            })
+            ->rawColumns(['name', 'action','images', 'price', 'status'])
+            ->addIndexColumn()
+            ->make(true);
+        }
+
+        return view('admin.product.index', compact('title', 'countStatus'));
+    }
+
+    public function showDetailProduct($id)
+    {
+        $product = $this->productService->getProductDetailById($id);
+
+        return view('admin.product.detail', compact('product'));
     }
 
     public function create()
     {
-        $categories = Category::with(['child'])->orderBy('name')->where('parent_id', null)->get();
-        $brands     = Brand::orderBy('name')->get();
-        $warranties = Warranty::orderBy('name')->get();
-        // dd($categories);
-        return view('admin.product.create', compact('categories', 'brands', 'warranties'));
+        $title      = "Tambah Produk | Toko Putra Elektronik";
+        $categories = $this->categoryService->getAllCategories(dummyRequest());
+        $brands     = $this->brandService->getAllBrands(dummyRequest());
+
+        return view('admin.product.create', compact('title', 'categories', 'brands'));
     }
 
     public function store(ProductRequest $request)
     {
-        if (!$request->image1 || !$request->image2 || !$request->image3) {
-            Session::flash("error-image", "Please complete upload all images of product");
-
-            return back()->withInput();
-        }
-
-        $params['name']         = $request->name;
-        $params['slug']         = Str::slug($request->name);
-        $params['price']        = $request->price;
-        $params['weight']       = $request->weight;
-        $params['category_id']  = $request->category_id;
-        $params['brand_id']     = $request->brand_id;
-        $params['warranty_id']  = $request->warranty_id;
-        $params['description']  = $request->description;
-        $params['specification']= $request->specification;
-        $params['is_featured']  = $request->is_featured;
-        $params['status']       = $request->status;
-        $images['image1']       = $request->image1;
-        $images['image2']       = $request->image2;
-        $images['image3']       = $request->image3;
-        $images['image4']       = $request->image4;
-        $images['image5']       = $request->image5;
-
-        $product = \DB::transaction(
-            function() use($params) {
-                $product = Product::create($params);
-
-                return $product->id;
-            }
-        );
-
-        $image = $this->storeImageProduct($product, $images);
-        Alert::success("Success", "Created new product");
-
-        return redirect()->route('products.index');
+        return $this->productService->create($request);
     }
 
     public function edit($id)
     {
-        $product    = Product::with(['productimages'])->findOrFail($id);
-        // dd($product);
-        $categories = Category::with(['child'])->orderBy('name')->where('parent_id', null)->get();
-        $brands     = Brand::orderBy('name')->get();
-        $warranties = Warranty::orderBy('name')->get();
+        $title      = "Ubah Produk | Toko Putra Elektronik";
+        $product    = $this->productService->getProductById($id);
+        $categories = $this->categoryService->getAllCategories(dummyRequest());
+        $brands     = $this->brandService->getAllBrands(dummyRequest());
 
-        return view('admin.product.edit', compact('product', 'categories', 'brands', 'warranties'));
+        return view('admin.product.edit', compact('title', 'product', 'categories', 'brands'));
     }
 
     public function update(ProductRequest $request, $id)
     {
-        $product                = Product::findOrFail($id);
-        $productImage           = ProductImage::where('product_id', $id)->first();
-        $params['name']         = $request->name;
-        $params['slug']         = Str::slug($request->name);
-        $params['price']        = $request->price;
-        $params['weight']       = $request->weight;
-        $params['category_id']  = $request->category_id;
-        $params['brand_id']     = $request->brand_id;
-        $params['warranty_id']  = $request->warranty_id;
-        $params['description']  = $request->description;
-        $params['specification']= $request->specification;
-        $params['is_featured']  = $request->is_featured;
-        $params['status']       = $request->status;
-        $images['image1']       = $request->hasFile('image1') ? $this->uploadImage($request->image1, $productImage->image1) : null;
-        $images['image2']       = $request->hasFile('image2') ? $this->uploadImage($request->image2, $productImage->image2) : null;
-        $images['image3']       = $request->hasFile('image3') ? $this->uploadImage($request->image3, $productImage->image3) : null;
-        $images['image4']       = $request->hasFile('image4') ? $this->uploadImage($request->image4, $productImage->image4) : null;
-        $images['image5']       = $request->hasFile('image5') ? $this->uploadImage($request->image5, $productImage->image5) : null;
-        // return $productImage;
-        $update = \DB::transaction(
-            function () use($product, $params) {
-                $product->update($params);
-
-                return $product;
-            }
-        );
-
-        $this->updateImageProduct($id, $images);
-        Alert::success("Success", "Update entire product");
-
-        return redirect()->route('products.index');
+        return $this->productService->update($request, $id);
     }
 
     public function destroy($id)
     {
-        $product = Product::findOrFail($id);
-        $product->delete();
-
-        Alert::success("Success", "Delete entire product");
-
-        return redirect()->route('product.index');
+        return $this->productService->delete($id);
     }
 
-    public function storeImageProduct($productId, $images)
+    public function restore($id)
     {
-        $params['path']         = $this->oriPath;
-        $params['thumb']        = $this->thumbPath;
-        $params['product_id']   = $productId;
-        $params['image1']       = $this->uploadImage($images['image1']);
-        $params['image2']       = $this->uploadImage($images['image2']);
-        $params['image3']       = $this->uploadImage($images['image3']);
-        $params['image4']       = $this->uploadImage($images['image4']);
-        $params['image5']       = $this->uploadImage($images['image5']);
-
-        $image = \DB::transaction(
-            function() use($params) {
-                $image = ProductImage::create($params);
-
-                return $image;
-            }
-        );
-
-        if($image) return true;
-
-        return false;
+        return $this->productService->restore($id);
     }
 
-    public function updateImageProduct($productId, $images) {
-        $productImage           = ProductImage::whereProductId($productId)->first();
-        $params['path']         = $this->oriPath;
-        $params['thumb']        = $this->thumbPath;
-        $params['product_id']   = $productId;
-        $params['image1']       = $images['image1'] ? $images['image1'] : $productImage->image1;
-        $params['image2']       = $images['image2'] ? $images['image2'] : $productImage->image2;
-        $params['image3']       = $images['image3'] ? $images['image3'] : $productImage->image3;
-        $params['image4']       = $images['image4'] ? $images['image4'] : $productImage->image4;
-        $params['image5']       = $images['image5'] ? $images['image5'] : $productImage->image5;
-
-        $image = \DB::transaction(
-            function() use($params, $productImage) {
-                $productImage->update($params);
-
-                return $productImage;
-            }
-        );
-
-        if ($image) return true;
-
-        return false;
-    }
-
-    public function uploadImage($img, $oldImg = null)
+    public function getProductReport(Request $request)
     {
-        // check directory
-        if (!File::isDirectory($this->oriPath))
-        {
-            // create new if not exist
-            File::makeDirectory($this->oriPath, 0777, true, true);
-            File::makeDirectory($this->thumbPath, 0777, true, true);
+        $products = $this->productService->getProductReport($request);
+        if (request()->ajax()) {
+            return datatables()::of($products)
+            ->addColumn('price', function($data) {
+                $price = convert_to_rupiah($data->price);
+
+                return $price;
+            })
+            ->addColumn('images', function($data) {
+                $images = "";
+                $images .= '<a href="' . asset($data->path.$data->image1) . '" data-lightbox="' . $data->product_slug . '" alt="' . $data->product_name . '">';
+                $images .= '<img src="' . asset($data->thumb.$data->image1) . '" data-lightbox="' . $data->product_slug . '" alt="' . $data->product_name . '" width="80px" height="40px">';
+                $images .= '</a>';
+
+                return $images;
+            })
+            ->addColumn('action', function($data){
+                $button = "";
+                $button .= '<a href="' . route('admin.products.edit', $data->product_id) . '" class="btn btn-success" >Detail</a>';
+
+                return $button;
+            })
+            ->rawColumns(['price', 'images', 'action'])
+            ->addIndexColumn()
+            ->make(true);
         }
 
-        $imageName  = time().'.'.uniqid().'.'.$img->getClientOriginalExtension();
-
-        $image      = Image::make($img->getRealPath());
-        $image->save($this->oriPath.'/'.$imageName);
-        $image->resize(180, 180, function($cons)
-            {
-                $cons->aspectRatio();
-            })->save($this->thumbPath.'/'.$imageName);
-
-        if (!empty($oldImg))
-        {
-            File::delete($this->oriPath.'/'.$oldImg);
-            File::delete($this->thumbPath.'/'.$oldImg);
-        }
-
-        return $imageName;
+        return view('admin.report.product');
     }
 
     // E-COMMERCE SECTION
-
-    public function getDetailProduct($categoryParentSlug, $categoryChildSlug, $productSlug)
+    public function getDetailProduct($categoryParentSlug, $categoryChildSlug, $productSlug) // to do now
     {
-        $categoryParentSlug = Category::whereSlug($categoryParentSlug)->first();
-        $categoryChildSlug  = Category::whereSlug($categoryChildSlug)->first();
-        $product            = Product::where('slug', $productSlug)->with(['productimages', 'brands', 'warranties', 'categories', 'categories.parent'])->first();
-        $randomProduct      = Product::where('slug', '!=', $productSlug)->inRandomOrder()->take(3)->with(['productimages'])->get();
-        $relatedProduct     = Product::whereCategoryId($categoryChildSlug->id)->where('slug', '!=', $productSlug)
-                                ->with(['productimages', 'categories', 'categories.parent'])->take(5)->get();
-        $relatedProductCount= $relatedProduct->count();
-        $categories         = Category::with(['child'])->whereNull('parent_id')->orderBy('name')->get();
-        $brands             = Brand::withCount(['products'])->orderBy('name')->get();
-        $brandsSlider       = Brand::inRandomOrder()->limit(6)->get();
-        // return $product;
-        if($categoryParentSlug == "" || $categoryChildSlug == "" || $product == "") abort(404);
+        if($categoryParentSlug == "" || $categoryChildSlug == "" || $productSlug == "") abort(404); // check if any slug is empty
+
+        $categoryParent = $this->categoryService->getCategoryBySlug($categoryParentSlug); // check if parent slug is exist
+        if (!$categoryParent) abort(404); // validate
+
+        $categoryChild  = $this->categoryService->getCategoryBySlug($categoryChildSlug); // check if child slug is exist
+        if (!$categoryChild) abort(404); // validate
+
+        $checkCategoryChildWithParent = $this->categoryService->getCategoryByIdParentId($categoryChild->id, $categoryParent->id); // check if category is child from parent category
+        if (!$checkCategoryChildWithParent) abort(404); // validate
+
+        $product = $this->productService->getProductBySlugCategoryId($productSlug, $categoryChild->id); // search product by slug and category_id
+        if (!$product) abort(404); // validate
+
+        $productSold         = $this->productService->getSoldAmountProductByProductId($product->id);
+        $productRating       = $this->reviewService->getAverageRatingReviewByProductId($product->id);
+        $productReviews      = $this->reviewService->getReviewByProductId($product->id);
+        $relatedProducts     = $this->productService->getRandomProductsLimitExceptThisSlugByCategoryId(3, $productSlug, $categoryChild->id);
+        $relatedProductCount = $relatedProducts->count();
+        $randomProducts      = $this->productService->getRandomProductsLimitExceptThisSlugByCategoryId(3, $productSlug);
+        $categories          = $this->categoryService->getCategoriesHasChildHasProduct();
+        $brands              = $this->brandService->getAllBrandsWithCountProducts();
+        $brandsSlider        = $this->brandService->getRandomOrderBrandsWithLimit(6);
 
         return view('ecommerce.product.detail',
             compact(
-                'product', 'randomProduct', 'relatedProduct', 'relatedProductCount', 'categories', 'brands',
-                'brandsSlider'
+                'product', 'productSold', 'productReviews', 'randomProducts', 'relatedProducts',
+                'relatedProductCount', 'categories', 'brands', 'brandsSlider', 'productRating'
             )
         );
     }
 
-    public function getProductByBrand($brandSlug)
+    public function getProductByName(Request $request)
+    {
+        $keyword        = $request->search;
+        $products       = $this->productService->getProductSearchByName($keyword);
+        $randomProducts = $this->productService->getRandomProductsLimitExceptThisSlugByCategoryId(3);
+        $categories     = $this->categoryService->getCategoriesHasChildHasProduct();
+        $brands         = $this->brandService->getAllBrandsWithCountProducts();
+        $brandsSlider   = $this->brandService->getRandomOrderBrandsWithLimit(6);
+
+        return view('ecommerce.product.search', compact('products', 'randomProducts', 'categories', 'brands', 'brandsSlider', 'keyword'));
+    }
+
+    public function getProductBestSelling()
     {
 
     }
 
-    public static function getProductBySlug($slug)
+    public function dummyReview()
     {
-        $product = Product::where('slug', $slug)->first();
 
-        if($product) return $product;
+    $file = file_get_contents(asset('499804152.csv'));
+    $arr = explode("\n", $file);
+    $clean = str_replace('"', '', $arr);
+    $item = explode(";", $clean[0]);
+    \DB::beginTransaction();
+    try {
 
-        return false;
+        for ($i = 0; $i < 50; $i++)
+        {
+            $item = explode(";", $clean[$i]);
+            $sentimen = SentimenService::getNaiveBayesClassification($item[0]);
+            $user_id = User::role('customer')->inRandomOrder()->take(1)->get();
+            $product_id = Product::inRandomOrder()->take(1)->get();
+            $order_id = Order::with(['payments'])->has('payments')->inRandomOrder()->take(1)->get();
+            $rating = $item[1];
+            $message = $item[0];
+
+        }
+
+        \DB::commit();
+    }
+    catch (\Exception $e) {
+        \DB::rollback();
+        throw $e;
+    }
     }
 }

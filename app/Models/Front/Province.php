@@ -13,4 +13,14 @@ class Province extends Model
     {
         return $this->hasMany('App\Models\Front\Address');
     }
+
+    public function orders()
+    {
+        return $this->hasMany('App\Models\Front\Order');
+    }
+
+    public function profiles()
+    {
+        return $this->hasOne('App\Models\Admin\Profile');
+    }
 }

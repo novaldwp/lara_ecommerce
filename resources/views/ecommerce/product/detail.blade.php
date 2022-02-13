@@ -1,19 +1,22 @@
 @extends('layouts.front.app')
 
+@section('title')
+    Jual {{ $product->name }} | Toko Putra Elektronik
+@endsection
+
 @section('content')
 <!-- Breadcrumb Start -->
 <div class="breadcrumb-wrap">
     <div class="container-fluid">
         <ul class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('ecommerce.index') }}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('ecommerce.index') }}">Beranda</a></li>
             <li class="breadcrumb-item"><a href="#">{{ $product->categories->parent->name }}</a></li>
             <li class="breadcrumb-item"><a href="#">{{ $product->categories->name }}</a></li>
-            <li class="breadcrumb-item active">{{ substr($product->name, 0, 60) }}</li>
+            <li class="breadcrumb-item active">{{ substr($product->name, 0, 50) }} {{ strlen($product->name) > 50 ? "..." : "" }}</li>
         </ul>
     </div>
 </div>
 <!-- Breadcrumb End -->
-
 <!-- Product Detail Start -->
 <div class="product-detail">
     <div class="container-fluid">
@@ -38,53 +41,37 @@
                             </div>
                         </div>
                         <div class="col-md-7">
-                            <form action="{{ route('ecommerce.product.detail.action') }}" method="post">
-                                @csrf
-                                <div class="product-content">
-                                    <input type="hidden" name="slug" value="{{ $product->slug }}">
-                                    <div class="title"><h2>{{ $product->name }}</h2></div>
-                                    <div class="info-product">
-                                        <span class="sold-product">
-                                            Sold : 123132
-                                            •
-                                        </span>
-                                        <span class="ratting">
-                                            <i class="fa fa-star"></i>
-                                            0 (120 reviews)
-                                        </span>
-                                    </div>
-                                    <div class="brands">
-                                        <h4>Brand:</h4>
-                                        <a href="{{ route('ecommerce.product.brand', $product->brands->slug) }}"><p>{{ $product->brands->name }}</p></a>
-                                    </div>
-                                    <div class="warranty">
-                                        <h4>Warranty:</h4>
-                                        <p>{{ $product->warranties->name }}</p>
-                                    </div>
-                                    <div class="price">
-                                        <h4>Price :</h4>
-                                        {{-- <p>$99 <span>$149</span></p> --}}
-                                        <p>Rp. {{ number_format($product->price, 0) }}</p>
-                                    </div>
-                                    <div class="quantity">
-                                        <h4>Quantity:</h4>
-                                        <div class="qty">
-                                            {{-- <button class="btn-minus"><i class="fa fa-minus"></i></button> --}}
-                                            <a href="javascript:void(0);" id="minusQty" class="btn" onclick="minusQty();">
-                                                <i class="fa fa-minus"></i>
-                                            </a>
-                                            <input type="text" id="qty" value="1" name="amount">
-                                            <a href="javascript:void(0);" id="plusQty" class="btn" onclick="plusQty()">
-                                                <i class="fa fa-plus"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <div class="action">
-                                        <button class="btn" name="action" value="cart"><i class="fa fa-shopping-cart"></i>Add to Cart</button>
-                                        <button class="btn" name="action" value="buy"><i class="fa fa-shopping-bag"></i>Buy Now</button>
-                                    </div>
+                            <div class="product-content">
+                                <input type="hidden" name="slug" value="{{ $product->slug }}">
+                                <div class="title"><h2>{{ $product->name }}</h2></div>
+                                <div class="info-product">
+                                    <span class="sold-product">
+                                        Terjual : {{ $productSold ?? 0 }}
+                                        •
+                                    </span>
+                                    <span class="ratting">
+                                        <i class="fa fa-star"></i>
+                                        {{ $productRating }} ({{ $product->reviews->count() }} ulasan)
+                                    </span>
                                 </div>
-                            </form>
+                                <div class="brands">
+                                    <h4>Merk: </h4>
+                                    @if ($product->brands)
+                                        <a href="{{ route('ecommerce.product.brand', $product->brands->slug) }}"><p>{{ $product->brands->name }}</p></a>
+                                    @else
+                                        <a href="javascript:void(0);"><p>Tidak ada Merk</p></a>
+                                    @endif
+                                </div>
+                                <div class="price">
+                                    <h4>Price :</h4>
+                                    <p>{{ convert_to_rupiah($product->price, 0) }}</p>
+                                </div>
+                                @role('customer')
+                                    <div class="action">
+                                        <button class="btn" name="action" value="cart" id="addCartButton" data-product="{{ simple_encrypt($product->id) }}"><i class="fa fa-shopping-cart"></i>Add to Cart</button>
+                                    </div>
+                                @endrole
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -93,13 +80,13 @@
                     <div class="col-lg-12">
                         <ul class="nav nav-pills nav-justified">
                             <li class="nav-item">
-                                <a class="nav-link active" data-toggle="pill" href="#description">Description</a>
+                                <a class="nav-link active" data-toggle="pill" href="#description">Deskripsi</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" data-toggle="pill" href="#specification">Specification</a>
+                                <a class="nav-link" data-toggle="pill" href="#specification">Spesifikasi</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" data-toggle="pill" href="#reviews">Reviews (1)</a>
+                                <a class="nav-link" data-toggle="pill" href="#reviews">Ulasan ({{ $product->reviews_count }})</a>
                             </li>
                         </ul>
 
@@ -111,43 +98,25 @@
                                 {!! $product->specification !!}
                             </div>
                             <div id="reviews" class="container tab-pane fade overflow-auto">
-                                <div class="reviews-submitted">
-                                    <div class="reviewer">Phasellus Gravida - <span>01 Jan 2020</span></div>
-                                    <div class="ratting">
-                                        <i class="fa fa-star"></i>
-                                        <i class="fa fa-star"></i>
-                                        <i class="fa fa-star"></i>
-                                        <i class="fa fa-star"></i>
-                                        <i class="fa fa-star"></i>
+                                {{-- {{ dd($product->reviews) }} --}}
+                                @forelse ($productReviews as $productReview )
+                                    <div class="reviews-submitted">
+                                        <div class="reviewer">{{ $productReview->users->first_name . ' ' . $productReview->users->last_name }}</div>
+                                        <div class="ratting">
+                                            @for($i = 0; $i < $productReview->rating; $i++)
+                                            <i class="fa fa-star"></i>
+                                            @endfor
+                                        </div>
+                                        <p>
+                                            {{ $productReview->message }}
+                                        </p>
+                                        <hr>
                                     </div>
-                                    <p>
-                                        Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam.
-                                    </p>
-                                </div>
-                                <div class="reviews-submit">
-                                    <h4>Give your Review:</h4>
-                                    <div class="ratting">
-                                        <i class="far fa-star"></i>
-                                        <i class="far fa-star"></i>
-                                        <i class="far fa-star"></i>
-                                        <i class="far fa-star"></i>
-                                        <i class="far fa-star"></i>
+                                @empty
+                                    <div class="reviews-submitted">
+                                        Belum ada ulasan.
                                     </div>
-                                    <div class="row form">
-                                        <div class="col-sm-6">
-                                            <input type="text" placeholder="Name">
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <input type="email" placeholder="Email">
-                                        </div>
-                                        <div class="col-sm-12">
-                                            <textarea placeholder="Review"></textarea>
-                                        </div>
-                                        <div class="col-sm-12">
-                                            <button>Submit</button>
-                                        </div>
-                                    </div>
-                                </div>
+                                @endforelse
                             </div>
                         </div>
                     </div>
@@ -155,41 +124,35 @@
 
                 <div class="product">
                     <div class="section-header">
-                        <h1>Related Products</h1>
+                        <h1>Produk Terkait</h1>
                     </div>
                     <div class="row align-items-center product-slider product-slider-3">
-                        @forelse ($relatedProduct as $related)
+                        @forelse ($relatedProducts as $relatedProduct)
                         <div class="{{ $relatedProductCount < 3 ? "col-lg-12":"col-lg-4" }}">
                             <div class="product-item">
                                 <div class="product-title">
-                                    <a href="{{ route('ecommerce.product.detail', [$related->categories->parent->slug, $related->categories->slug, $related->slug]) }}">{{ substr($related->name, 0, 60) }}</a>
-                                    <div class="ratting">
-                                        <i class="fa fa-star"></i>
-                                        <i class="fa fa-star"></i>
-                                        <i class="fa fa-star"></i>
-                                        <i class="fa fa-star"></i>
-                                        <i class="fa fa-star"></i>
-                                    </div>
+                                    <a href="{{ route('ecommerce.product.detail', [$relatedProduct->categories->parent->slug, $relatedProduct->categories->slug, $relatedProduct->slug]) }}">{{ substr($relatedProduct->name, 0, 45) }}</a>
                                 </div>
                                 <div class="product-image">
-                                    <a href="product-detail.html">
-                                        <img src="{{ asset($related->productimages->thumb.$related->productimages->image1) }}" alt="Product Image">
+                                    <a href="{{ route('ecommerce.product.detail', [$relatedProduct->categories->parent->slug, $relatedProduct->categories->slug, $relatedProduct->slug]) }}">
+                                        <img src="{{ asset($relatedProduct->productimages->thumb.$relatedProduct->productimages->image1) }}" loading="lazy" alt="{{ $relatedProduct->name }}">
                                     </a>
-                                    <div class="product-action">
-                                        <a href="#"><i class="fa fa-cart-plus"></i></a>
-                                        <a href="#"><i class="fa fa-heart"></i></a>
-                                    </div>
+                                    @role('customer')
+                                        <div class="product-action">
+                                            <a href="javascript:void(0);" id="addCartButton" data-product="{{ simple_encrypt($relatedProduct->id) }}"><i class="fa fa-cart-plus"></i></a>
+                                            <a href="javascript:void(0);" id="addWishlistButton" data-product="{{ simple_encrypt($relatedProduct->id) }}"><i class="fa fa-heart"></i></a>
+                                        </div>
+                                    @endrole
                                 </div>
                                 <div class="product-price text-center">
-                                    <h3><span>Rp. </span>{{ number_format($related->price, 0) }}</h3>
+                                    <h3>{{ convert_to_rupiah($relatedProduct->price) }}</h3>
                                 </div>
                             </div>
                         </div>
                         @empty
                             <div class="col-lg-12">
                                 <div class="product-item">
-
-                                    <span>Related Products No Available</span>
+                                    <span>No Related Products Available</span>
                                 </div>
                             </div>
                         @endforelse
@@ -198,77 +161,7 @@
             </div>
 
             <!-- Side Bar Start -->
-            <div class="col-lg-4 sidebar">
-                <div class="sidebar-widget category">
-                    <h2 class="title">Category</h2>
-                    <nav class="navbar bg-light">
-                        <ul class="navbar-nav">
-                            @forelse ($categories as $category)
-                                <li class="dropdown">
-                                    <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><span>{{ $category->name }}</span></a>
-                                    <ul class="dropdown-menu category">
-                                        @foreach ($category->child as $cat)
-                                            <li class=""><a class="nav-link" href="{{ route('ecommerce.product.category', [$cat->parent->slug, $cat->slug]) }}">&raquo; {{ $cat->name }}</a></li>
-                                        @endforeach
-                                    </ul>
-                                </li>
-                            @empty
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#"><i class="fas fa-exclamation-triangle"></i> No Categories Found</a>
-                                </li>
-                            @endforelse
-                        </ul>
-                    </nav>
-                </div>
-
-                <div class="sidebar-widget widget-slider">
-                    <div class="sidebar-slider normal-slider">
-                        @forelse ($randomProduct as $random)
-                            <div class="product-item">
-                                <div class="product-title">
-                                    <a href="{{ route('ecommerce.product.detail', [$random->categories->parent->slug, $random->categories->slug, $random->slug]) }}">{{substr($random->name, 0, 35) }} {{ strlen($random->name) > 35 ? "..." : ""}}</a>
-                                    <div class="ratting">
-                                        <i class="fa fa-star"></i>
-                                        <i class="fa fa-star"></i>
-                                        <i class="fa fa-star"></i>
-                                        <i class="fa fa-star"></i>
-                                        <i class="fa fa-star"></i>
-                                    </div>
-                                </div>
-                                <div class="product-image">
-                                    <a href="product-detail.html">
-                                        <img src="{{ asset($random->productimages->thumb.$random->productimages->image1) }}" alt="Product Image" width="300" height="300">
-                                    </a>
-                                    <div class="product-action">
-                                        <a href="#"><i class="fa fa-cart-plus"></i></a>
-                                        <a href="#"><i class="fa fa-heart"></i></a>
-                                    </div>
-                                </div>
-                                <div class="product-price text-center">
-                                    <h3><span>Rp. </span>{{ number_format($random->price, 0) }}</h3>
-                                </div>
-                            </div>
-                        @empty
-                            <div class="product-item"><span>No Random Product Available</span></div>
-                        @endforelse
-                    </div>
-                </div>
-
-                <div class="sidebar-widget brands overflow-auto">
-                    <h2 class="title">Our Brands</h2>
-                    <ul>
-                        @forelse ($brands as $brand)
-                            <li><a href="{{ route('ecommerce.product.brand', $brand->slug) }}">{{ $brand->name }}</a><span>({{ $brand->products_count }})</span></li>
-                        @empty
-                            <span>No Brands Available</span>
-                        @endforelse
-                    </ul>
-                </div>
-
-                <div class="sidebar-widget tag">
-
-                </div>
-            </div>
+                @include('ecommerce._partial.sidebar')
             <!-- Side Bar End -->
         </div>
     </div>
@@ -276,54 +169,26 @@
 <!-- Product Detail End -->
 
 <!-- Brand Start -->
-<div class="brand">
-    <div class="container-fluid">
-        <div class="brand-slider">
-            @forelse ($brandsSlider as $brandSlider)
-                <div class="brand-item"><img src="{{ asset('uploads/images/brands/thumb/'.$brandSlider->image) }}" height="80" width="150" alt=""></div>
-            @empty
-                <div class="brand-item"><img src="{{ asset('assets/front/img/brand-1.png') }}" alt=""></div>
-            @endforelse
-        </div>
-    </div>
-</div>
+    @include('ecommerce._partial.brands-slider')
 <!-- Brand End -->
 @endsection
 
 @section('scripts')
-<script>
-    function plusQty()
-    {
-        let value = parseInt(document.querySelector("#qty").value, 10);
-        value = isNaN(value) ? 0 : value;
-        value++;
-        document.getElementById('qty').value = value;
-    }
-
-    function minusQty()
-    {
-        let value = parseInt(document.querySelector("#qty").value, 10);
-
-        if (value > 1)
-        {
-            value--;
-            document.getElementById('qty').value = value;
-        }
-    }
-</script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script src="{{ asset('js/front/cart.js') }}"></script>
 @endsection
 
 @section('css')
 <link rel="stylesheet" href="{{ asset('assets/front/css/custom.css') }}">
 <style>
-    #description, #specification, #reviews {
-        min-height: 350px;
-        max-height: 350px;
-    }
+#description, #specification, #reviews {
+    min-height: 350px;
+    max-height: 350px;
+}
 
-    .sidebar-widget.brands {
-        max-height: 350px;
-    }
+.sidebar-widget.brands {
+    max-height: 350px;
+}
 
 .product-content .brands h4 {
     display: inline-block;

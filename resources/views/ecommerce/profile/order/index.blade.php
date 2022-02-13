@@ -5,13 +5,18 @@
 <link href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css" rel="stylesheet">
 @endsection
 
+@section('title')
+    Riwayat Order | Toko Putra Elektronik
+@endsection
+
 @section('content')
 <!-- Breadcrumb Start -->
 <div class="breadcrumb-wrap">
     <div class="container-fluid">
         <ul class="breadcrumb">
-            <li class="breadcrumb-item"><a href="#">Home</a></li>
-            <li class="breadcrumb-item active">My Account</li>
+            <li class="breadcrumb-item"><a href="#">Beranda</a></li>
+            <li class="breadcrumb-item active"><a href="#"> Akun Saya</a></li>
+            <li class="breadcrumb-item">Riwayat Order</li>
         </ul>
     </div>
 </div>
@@ -32,28 +37,14 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Order ID</th>
-                                    <th>Date</th>
-                                    <th>Total Price</th>
+                                    <th>Tanggal dan Waktu</th>
+                                    <th>Total Harga</th>
                                     <th>Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {{-- @php $i = 1; @endphp
-                                @forelse($orders as $order)
-                                    <tr>
-                                        <td>{{ $i++ }}</td>
-                                        <td>{{ $order->code }}</td>
-                                        <td>{{ getDateTimeIndo($order->order_date) }}</td>
-                                        <td>Rp. {{ number_format($order->total_price, 0) }}</td>
-                                        <td>{!! getOrderStatusMember($order->status) !!}</td>
-                                        <td><a href="{{ route('ecommerce.profile.orders.detail', $order->id) }}" class="btn">Details</a></td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="6">No. Order Available</td>
-                                    </tr>
-                                @endforelse --}}
+
                             </tbody>
                         </table>
                     </div>
